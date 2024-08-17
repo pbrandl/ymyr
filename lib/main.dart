@@ -22,18 +22,143 @@ void main() async {
     autoSendSessionId: true,
   );
 
-  runApp(const MyApp());
+  runApp(const Home());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyAppState extends State<MyApp> {
-  bool _locationPickerMode = false;
+class LocationPickerNotifier extends ChangeNotifier {
+  bool _mode = false;
+  LatLng? _center;
+
+  bool get mode => _mode;
+
+  LatLng? get center => _center;
+
+  void toggleLocationPickerMode() {
+    _mode = !_mode;
+    notifyListeners();
+  }
+
+  void setLocation(LatLng? center) {
+    _center = center;
+    debugPrint(_center.toString());
+    notifyListeners();
+  }
+}
+
+class LocationDataNotifier extends ChangeNotifier {
+  List<ParseObject> _events = [];
+  List<ParseObject> _artists = [];
+
+  List<ParseObject> get events => _events;
+  List<ParseObject> get artists => _artists;
+
+  LocationDataNotifier() {
+    Future.wait([
+      fetchArtists(),
+      fetchEvents(),
+    ]);
+  }
+
+  Future<void> fetchArtists() async {
+    final QueryBuilder<ParseObject> queryArtists =
+        QueryBuilder<ParseObject>(ParseObject('Artists'));
+
+    final ParseResponse response = await queryArtists.query();
+
+    if (response.success && response.results != null) {
+      _artists = response.results as List<ParseObject>;
+      notifyListeners();
+    } else {
+      print('Failed to fetch artists: ${response.error?.message}');
+    }
+  }
+
+  // Fetch all data from the 'Events' table
+  Future<void> fetchEvents() async {
+    final QueryBuilder<ParseObject> queryEvents =
+        QueryBuilder<ParseObject>(ParseObject('Events'));
+
+    final ParseResponse response = await queryEvents.query();
+
+    if (response.success && response.results != null) {
+      _events = response.results as List<ParseObject>;
+      notifyListeners();
+    } else {
+      // Handle error
+      print('Failed to fetch events: ${response.error?.message}');
+    }
+  }
+}
+
+enum Category { event, artist }
+
+enum View { list, map }
+
+class MenuStateNotifier extends ChangeNotifier {
+  Category _category = Category.artist;
+  View _view = View.map;
+
+  Category get category => _category;
+  View get view => _view;
+
+  void toggleView() {
+    _view = _view == View.list ? View.map : View.list;
+    notifyListeners();
+  }
+
+  void toggleCategory() {
+    _category = _category == Category.event ? Category.artist : Category.event;
+    notifyListeners();
+  }
+
+  String categoryString() {
+    return _category == Category.event ? "Event" : "Artist";
+  }
+
+  String viewString() {
+    return _view == View.map ? "Map" : "List";
+  }
+
+  bool isEvent() => _category == Category.event;
+}
+
+class _HomeState extends State<Home> {
+  late LocationPickerNotifier _picker;
+  late LocationDataNotifier _locationData;
+  late MenuStateNotifier _menuState;
+
+  @override
+  void initState() {
+    super.initState();
+    _picker = LocationPickerNotifier();
+    _picker.addListener(_update);
+    _locationData = LocationDataNotifier();
+    _locationData.addListener(_update);
+    _menuState = MenuStateNotifier();
+    _menuState.addListener(_update);
+  }
+
+  @override
+  void dispose() {
+    _picker.removeListener(_update);
+    _picker.dispose();
+    _locationData.removeListener(_update);
+    _locationData.dispose();
+    _menuState.removeListener(_update);
+    _menuState.dispose();
+    super.dispose();
+  }
+
+  void _update() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,36 +166,35 @@ class _MyAppState extends State<MyApp> {
       title: 'YMYR',
       home: Scaffold(
         body: Stack(children: [
-          OSMFlutterMap(showMarker: !_locationPickerMode),
-          if (!_locationPickerMode)
-            Positioned(
-              right: 20,
-              bottom: 40,
-              child: FilledButton.icon(
-                icon: const Icon(Icons.add),
-                onPressed: () => {
-                  setState(() {
-                    _locationPickerMode = !_locationPickerMode;
-                  })
-                },
-                label: const Text("Neu"),
-              ),
+          OSMFlutterMap(
+            pickerNotifier: _picker,
+            menuState: _menuState,
+            locationData: _locationData,
+          ),
+          Positioned(
+            right: 20,
+            bottom: 40,
+            child: FilledButton.icon(
+              icon: const Icon(Icons.add),
+              onPressed: () => {_picker.toggleLocationPickerMode()},
+              label: const Text("Neu"),
             ),
-          if (_locationPickerMode)
+          ),
+          if (_picker.mode)
             const Positioned(
                 top: 50,
                 right: 50,
                 left: 50,
                 bottom: 50,
                 child: IconAnimation(icon: Icons.my_location)),
-          if (_locationPickerMode)
+          if (_picker.mode)
             const Positioned(
               right: 50,
               left: 50,
               bottom: 40,
               child: AddMenu(),
             ),
-          if (_locationPickerMode)
+          if (_picker.mode)
             const Positioned(
               right: 50,
               left: 50,
@@ -78,16 +202,21 @@ class _MyAppState extends State<MyApp> {
               child: Center(child: Text("Wähle deine Location")),
             ),
         ]),
-        floatingActionButton: !_locationPickerMode ? const QuadMenu() : null,
+        floatingActionButton: !_picker.mode
+            ? QuadMenu(
+                menuState: _menuState,
+              )
+            : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
-    ;
   }
 }
 
 class QuadMenu extends StatefulWidget {
-  const QuadMenu({super.key});
+  final MenuStateNotifier menuState;
+
+  const QuadMenu({super.key, required this.menuState});
 
   @override
   State<QuadMenu> createState() => _QuadMenuState();
@@ -96,42 +225,54 @@ class QuadMenu extends StatefulWidget {
 enum MenuOptions { event, list, artist, map }
 
 class _QuadMenuState extends State<QuadMenu> {
-  final List<(MenuOptions, String)> shirtSizeOptions = <(MenuOptions, String)>[
-    (MenuOptions.event, 'Event'),
-    (MenuOptions.list, 'List'),
-  ];
-
-  Set<MenuOptions> _segmentedButtonSelection = <MenuOptions>{MenuOptions.event};
-
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<MenuOptions>(
-      multiSelectionEnabled: true,
-      emptySelectionAllowed: true,
-      showSelectedIcon: false,
-      selected: _segmentedButtonSelection,
-      onSelectionChanged: (Set<MenuOptions> newSelection) {
-        setState(() {
-          _segmentedButtonSelection = newSelection;
-        });
-      },
-      segments: shirtSizeOptions
-          .map<ButtonSegment<MenuOptions>>(((MenuOptions, String) shirt) {
-        return ButtonSegment<MenuOptions>(
-          value: shirt.$1,
-          label: Row(
-            children: [
-              const Icon(Icons.map),
-              const SizedBox(width: 8),
-              Text(shirt.$2),
-            ],
+    return SizedBox(
+        width: 200,
+        child: Row(children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => widget.menuState.toggleCategory(),
+              child: Container(
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  border: Border.all(),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(15.0),
+                    bottomLeft: Radius.circular(15.0),
+                  ),
+                ),
+                child: Text(
+                  widget.menuState.categoryString(),
+                ),
+              ),
+            ),
           ),
-        );
-      }).toList(),
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-      ),
-    );
+          Expanded(
+            child: GestureDetector(
+              onTap: () => widget.menuState.toggleView(),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  border: const Border(
+                    top: BorderSide(color: Colors.black),
+                    bottom: BorderSide(color: Colors.black),
+                    right: BorderSide(color: Colors.black),
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomRight: Radius.circular(15.0),
+                    topRight: Radius.circular(15.0),
+                  ),
+                ),
+                height: 30,
+                alignment: Alignment.center,
+                child: Text(widget.menuState.viewString()),
+              ),
+            ),
+          ),
+        ]));
   }
 }
 
@@ -195,9 +336,16 @@ class _AddMenuState extends State<AddMenu> {
 }
 
 class OSMFlutterMap extends StatefulWidget {
-  final bool showMarker;
+  final LocationPickerNotifier pickerNotifier;
+  final MenuStateNotifier menuState;
+  final LocationDataNotifier locationData;
 
-  const OSMFlutterMap({super.key, required this.showMarker});
+  const OSMFlutterMap({
+    super.key,
+    required this.pickerNotifier,
+    required this.menuState,
+    required this.locationData,
+  });
 
   @override
   State<OSMFlutterMap> createState() => _OSMFlutterMapState();
@@ -205,48 +353,11 @@ class OSMFlutterMap extends StatefulWidget {
 
 class _OSMFlutterMapState extends State<OSMFlutterMap> {
   final MapController mapController = MapController();
-  List<ParseObject> _geoLocations = [
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7758)
-      ..set('longitude', 9.1829),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7826)
-      ..set('longitude', 9.1770),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7746)
-      ..set('longitude', 9.1638),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7837)
-      ..set('longitude', 9.1563),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7751)
-      ..set('longitude', 9.1900),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7700)
-      ..set('longitude', 9.1782),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7805)
-      ..set('longitude', 9.1850),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7792)
-      ..set('longitude', 9.1683),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7743)
-      ..set('longitude', 9.1845),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7780)
-      ..set('longitude', 9.1871),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7762)
-      ..set('longitude', 9.1814),
-    ParseObject('GeoLocation')
-      ..set('latitude', 48.7717)
-      ..set('longitude', 9.1736),
-  ];
 
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    mapController.dispose();
+    super.dispose();
   }
 
   LatLng initialCenter = LatLng(48.7758, 9.1829); // Coordinates for Stuttgart
@@ -261,7 +372,9 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
     }
 
     void onPositionChanged(MapPosition position, bool hasGesture) {
-      print('Center: ${position.center}');
+      if (widget.pickerNotifier.mode) {
+        widget.pickerNotifier.setLocation(position.center);
+      }
     }
 
     return FlutterMap(
@@ -277,16 +390,43 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
           urlTemplate:
               'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
           subdomains: const ['a', 'b', 'c', 'd'],
-          // retinaMode: true,
         ),
-        if (widget.showMarker)
+        if (!widget.pickerNotifier.mode)
+          if (widget.menuState.category == Category.event)
+            MarkerClusterLayerWidget(
+              options: MarkerClusterLayerOptions(
+                maxClusterRadius: 45,
+                size: const Size(40, 40),
+                markers: widget.locationData.events.map((entry) {
+                  ParseGeoPoint point = entry['Coordinates'];
+                  final double latitude = point.latitude;
+                  final double longitude = point.longitude;
+                  return drawMarker(LatLng(latitude, longitude));
+                }).toList(),
+                builder: (context, markers) {
+                  return Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Theme.of(context).primaryColor),
+                    child: Center(
+                      child: Text(
+                        markers.length.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        if (widget.menuState.category == Category.artist)
           MarkerClusterLayerWidget(
             options: MarkerClusterLayerOptions(
               maxClusterRadius: 45,
               size: const Size(40, 40),
-              markers: _geoLocations.map((location) {
-                final double latitude = location['latitude'];
-                final double longitude = location['longitude'];
+              markers: widget.locationData.artists.map((entry) {
+                ParseGeoPoint point = entry['Coordinates'];
+                final double latitude = point.latitude;
+                final double longitude = point.longitude;
                 return drawMarker(LatLng(latitude, longitude));
               }).toList(),
               builder: (context, markers) {
