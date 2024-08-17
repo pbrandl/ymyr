@@ -52,14 +52,14 @@ class LocationPickerNotifier extends ChangeNotifier {
   }
 }
 
-class LocationDataNotifier extends ChangeNotifier {
+class CategoryDataNotifier extends ChangeNotifier {
   List<ParseObject> _events = [];
   List<ParseObject> _artists = [];
 
   List<ParseObject> get events => _events;
   List<ParseObject> get artists => _artists;
 
-  LocationDataNotifier() {
+  CategoryDataNotifier() {
     Future.wait([
       fetchArtists(),
       fetchEvents(),
@@ -123,7 +123,7 @@ class MenuStateNotifier extends ChangeNotifier {
   }
 
   String viewString() {
-    return _view == View.map ? "Map" : "List";
+    return _view != View.map ? "Map" : "List";
   }
 
   bool isEvent() => _category == Category.event;
@@ -131,7 +131,7 @@ class MenuStateNotifier extends ChangeNotifier {
 
 class _HomeState extends State<Home> {
   late LocationPickerNotifier _picker;
-  late LocationDataNotifier _locationData;
+  late CategoryDataNotifier _categoryData;
   late MenuStateNotifier _menuState;
 
   @override
@@ -139,8 +139,8 @@ class _HomeState extends State<Home> {
     super.initState();
     _picker = LocationPickerNotifier();
     _picker.addListener(_update);
-    _locationData = LocationDataNotifier();
-    _locationData.addListener(_update);
+    _categoryData = CategoryDataNotifier();
+    _categoryData.addListener(_update);
     _menuState = MenuStateNotifier();
     _menuState.addListener(_update);
   }
@@ -149,8 +149,8 @@ class _HomeState extends State<Home> {
   void dispose() {
     _picker.removeListener(_update);
     _picker.dispose();
-    _locationData.removeListener(_update);
-    _locationData.dispose();
+    _categoryData.removeListener(_update);
+    _categoryData.dispose();
     _menuState.removeListener(_update);
     _menuState.dispose();
     super.dispose();
@@ -169,7 +169,7 @@ class _HomeState extends State<Home> {
           OSMFlutterMap(
             pickerNotifier: _picker,
             menuState: _menuState,
-            locationData: _locationData,
+            locationData: _categoryData,
           ),
           Positioned(
             right: 20,
@@ -205,6 +205,7 @@ class _HomeState extends State<Home> {
         floatingActionButton: !_picker.mode
             ? QuadMenu(
                 menuState: _menuState,
+                categoryData: _categoryData,
               )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -215,16 +216,26 @@ class _HomeState extends State<Home> {
 
 class QuadMenu extends StatefulWidget {
   final MenuStateNotifier menuState;
+  final CategoryDataNotifier categoryData;
 
-  const QuadMenu({super.key, required this.menuState});
+  const QuadMenu({
+    super.key,
+    required this.menuState,
+    required this.categoryData,
+  });
 
   @override
   State<QuadMenu> createState() => _QuadMenuState();
 }
 
-enum MenuOptions { event, list, artist, map }
-
 class _QuadMenuState extends State<QuadMenu> {
+  late List<ParseObject> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -252,7 +263,56 @@ class _QuadMenuState extends State<QuadMenu> {
           ),
           Expanded(
             child: GestureDetector(
-              onTap: () => widget.menuState.toggleView(),
+              onTap: () {
+                widget.menuState.toggleView();
+                if (widget.menuState._view == View.list) {
+                  showBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      data = widget.menuState._category == Category.event
+                          ? widget.categoryData.events
+                          : widget.categoryData.artists;
+
+                      return FractionallySizedBox(
+                        heightFactor: 0.97,
+                        child: SizedBox(
+                          width: 400,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: AnimatedBuilder(
+                              animation: widget.menuState,
+                              builder: (context, child) {
+                                final data =
+                                    widget.menuState._category == Category.event
+                                        ? widget.categoryData.events
+                                        : widget.categoryData.artists;
+
+                                return ListView.builder(
+                                  itemCount: data.length,
+                                  itemBuilder: (context, index) {
+                                    final item = data[index];
+                                    final String? name =
+                                        item.get<String>('Name');
+
+                                    return ListTile(
+                                      title: Text(name ?? 'Unnamed Item'),
+                                      subtitle: Text('ID: ${item.objectId}'),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ).closed.then((value) => widget.menuState.toggleView());
+                  ;
+                } else {
+                  Navigator.pop(context);
+                  widget.menuState.toggleView();
+                }
+              },
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
@@ -338,7 +398,7 @@ class _AddMenuState extends State<AddMenu> {
 class OSMFlutterMap extends StatefulWidget {
   final LocationPickerNotifier pickerNotifier;
   final MenuStateNotifier menuState;
-  final LocationDataNotifier locationData;
+  final CategoryDataNotifier locationData;
 
   const OSMFlutterMap({
     super.key,
@@ -392,38 +452,14 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
           subdomains: const ['a', 'b', 'c', 'd'],
         ),
         if (!widget.pickerNotifier.mode)
-          if (widget.menuState.category == Category.event)
-            MarkerClusterLayerWidget(
-              options: MarkerClusterLayerOptions(
-                maxClusterRadius: 45,
-                size: const Size(40, 40),
-                markers: widget.locationData.events.map((entry) {
-                  ParseGeoPoint point = entry['Coordinates'];
-                  final double latitude = point.latitude;
-                  final double longitude = point.longitude;
-                  return drawMarker(LatLng(latitude, longitude));
-                }).toList(),
-                builder: (context, markers) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Theme.of(context).primaryColor),
-                    child: Center(
-                      child: Text(
-                        markers.length.toString(),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-        if (widget.menuState.category == Category.artist)
           MarkerClusterLayerWidget(
             options: MarkerClusterLayerOptions(
               maxClusterRadius: 45,
               size: const Size(40, 40),
-              markers: widget.locationData.artists.map((entry) {
+              markers: (widget.menuState.category == Category.event
+                      ? widget.locationData.events
+                      : widget.locationData.artists)
+                  .map((entry) {
                 ParseGeoPoint point = entry['Coordinates'];
                 final double latitude = point.latitude;
                 final double longitude = point.longitude;
