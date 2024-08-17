@@ -43,13 +43,6 @@ class _MyAppState extends State<MyApp> {
         body: Stack(children: [
           OSMFlutterMap(showMarker: !_locationPickerMode),
           if (!_locationPickerMode)
-            const Positioned(
-              right: 50,
-              left: 50,
-              bottom: 40,
-              child: QuadMenu(),
-            ),
-          if (!_locationPickerMode)
             Positioned(
               right: 20,
               bottom: 40,
@@ -85,6 +78,8 @@ class _MyAppState extends State<MyApp> {
               child: Center(child: Text("Wähle deine Location")),
             ),
         ]),
+        floatingActionButton: !_locationPickerMode ? const QuadMenu() : null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
     ;
@@ -110,38 +105,31 @@ class _QuadMenuState extends State<QuadMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SegmentedButton<MenuOptions>(
-            multiSelectionEnabled: true,
-            emptySelectionAllowed: true,
-            showSelectedIcon: false,
-            selected: _segmentedButtonSelection,
-            onSelectionChanged: (Set<MenuOptions> newSelection) {
-              setState(() {
-                _segmentedButtonSelection = newSelection;
-              });
-            },
-            segments: shirtSizeOptions
-                .map<ButtonSegment<MenuOptions>>(((MenuOptions, String) shirt) {
-              return ButtonSegment<MenuOptions>(
-                value: shirt.$1,
-                label: Row(
-                  children: [
-                    const Icon(Icons.map),
-                    const SizedBox(width: 8),
-                    Text(shirt.$2),
-                  ],
-                ),
-              );
-            }).toList(),
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-            ),
+    return SegmentedButton<MenuOptions>(
+      multiSelectionEnabled: true,
+      emptySelectionAllowed: true,
+      showSelectedIcon: false,
+      selected: _segmentedButtonSelection,
+      onSelectionChanged: (Set<MenuOptions> newSelection) {
+        setState(() {
+          _segmentedButtonSelection = newSelection;
+        });
+      },
+      segments: shirtSizeOptions
+          .map<ButtonSegment<MenuOptions>>(((MenuOptions, String) shirt) {
+        return ButtonSegment<MenuOptions>(
+          value: shirt.$1,
+          label: Row(
+            children: [
+              const Icon(Icons.map),
+              const SizedBox(width: 8),
+              Text(shirt.$2),
+            ],
           ),
-        ],
+        );
+      }).toList(),
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
       ),
     );
   }
@@ -280,8 +268,9 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
       options: MapOptions(
           center: initialCenter,
           zoom: 14.0,
-          minZoom: 1.0,
-          maxZoom: 20.0,
+          minZoom: 10.0,
+          maxZoom: 18.0,
+          interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
           onPositionChanged: onPositionChanged),
       children: [
         TileLayer(
