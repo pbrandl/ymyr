@@ -1,16 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-final List<String> genres = [
-  'All',
-  'Rock',
-  'Pop',
-  'Jazz',
-  'Classical',
-  'Hip-Hop'
-];
-final List<String> types = ['All', 'A', 'B', 'C', 'D'];
-
 class Dropdown extends StatefulWidget {
   final String hintText;
   final List<String> dropdownOptions;
@@ -64,18 +54,19 @@ class DropdownState extends State<Dropdown> {
 class Picker extends StatefulWidget {
   final String defaultText;
   final List<String> items;
+  final Function onChanged;
 
-  const Picker({
-    super.key,
-    required this.defaultText,
-    required this.items,
-  });
+  const Picker(
+      {super.key,
+      required this.defaultText,
+      required this.items,
+      required this.onChanged});
 
   @override
-  State<Picker> createState() => _PickerState();
+  State<Picker> createState() => PickerState();
 }
 
-class _PickerState extends State<Picker> {
+class PickerState extends State<Picker> {
   int _selected = 0;
 
   // This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoPicker.
@@ -114,6 +105,7 @@ class _PickerState extends State<Picker> {
             setState(() {
               _selected = selectedItem;
             });
+            widget.onChanged(widget.items[_selected]);
           },
           children: List<Widget>.generate(widget.items.length, (int index) {
             return Center(child: Text(widget.items[index]));
