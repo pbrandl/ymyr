@@ -6,6 +6,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
+import 'package:ymyr/dropdowns.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +59,21 @@ class CategoryDataNotifier extends ChangeNotifier {
 
   List<ParseObject> get events => _events;
   List<ParseObject> get artists => _artists;
+  List<ParseObject> get current => _currentSelection;
+
+  List<ParseObject> _currentSelection = [];
+
+  void setSelectionToEvent() {
+    _currentSelection = _events;
+    notifyListeners();
+  }
+
+  void setSelectionToArtist() {
+    _currentSelection = _artists;
+    notifyListeners();
+  }
+
+  void filterSelection(genre, type, finta) {}
 
   CategoryDataNotifier() {
     Future.wait([
@@ -74,6 +90,7 @@ class CategoryDataNotifier extends ChangeNotifier {
 
     if (response.success && response.results != null) {
       _artists = response.results as List<ParseObject>;
+      _currentSelection = _artists;
       notifyListeners();
     } else {
       print('Failed to fetch artists: ${response.error?.message}');
@@ -118,8 +135,18 @@ class MenuStateNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCategoryEvents() {
+    _category = Category.event;
+    notifyListeners();
+  }
+
+  void setCategoryArtists() {
+    _category = Category.artist;
+    notifyListeners();
+  }
+
   String categoryString() {
-    return _category == Category.event ? "Event" : "Artist";
+    return _category != Category.event ? "Event" : "Artist";
   }
 
   String viewString() {
@@ -172,12 +199,24 @@ class _HomeState extends State<Home> {
             locationData: _categoryData,
           ),
           Positioned(
-            right: 20,
-            bottom: 40,
-            child: FilledButton.icon(
-              icon: const Icon(Icons.add),
-              onPressed: () => {_picker.toggleLocationPickerMode()},
-              label: const Text("Neu"),
+            top: 20,
+            right: 50,
+            left: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    color: Colors.white,
+                    width: 60,
+                    child: Picker(defaultText: 'Genre', items: genres)),
+                const SizedBox(width: 32),
+                Container(
+                    color: Colors.white,
+                    width: 60,
+                    child: Picker(defaultText: 'Type', items: types)),
+                const SizedBox(width: 32),
+                const FintaActionChip(),
+              ],
             ),
           ),
           if (_picker.mode)
@@ -243,7 +282,15 @@ class _QuadMenuState extends State<QuadMenu> {
         child: Row(children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => widget.menuState.toggleCategory(),
+              onTap: () {
+                if (widget.menuState._category == Category.event) {
+                  widget.menuState.setCategoryArtists();
+                  widget.categoryData.setSelectionToArtist();
+                } else {
+                  widget.menuState.setCategoryEvents();
+                  widget.categoryData.setSelectionToEvent();
+                }
+              },
               child: Container(
                 height: 30,
                 alignment: Alignment.center,
@@ -269,10 +316,6 @@ class _QuadMenuState extends State<QuadMenu> {
                   showBottomSheet(
                     context: context,
                     builder: (BuildContext context) {
-                      data = widget.menuState._category == Category.event
-                          ? widget.categoryData.events
-                          : widget.categoryData.artists;
-
                       return FractionallySizedBox(
                         heightFactor: 0.97,
                         child: SizedBox(
@@ -282,24 +325,8 @@ class _QuadMenuState extends State<QuadMenu> {
                             child: AnimatedBuilder(
                               animation: widget.menuState,
                               builder: (context, child) {
-                                final data =
-                                    widget.menuState._category == Category.event
-                                        ? widget.categoryData.events
-                                        : widget.categoryData.artists;
-
-                                return ListView.builder(
-                                  itemCount: data.length,
-                                  itemBuilder: (context, index) {
-                                    final item = data[index];
-                                    final String? name =
-                                        item.get<String>('Name');
-
-                                    return ListTile(
-                                      title: Text(name ?? 'Unnamed Item'),
-                                      subtitle: Text('ID: ${item.objectId}'),
-                                    );
-                                  },
-                                );
+                                final data = widget.categoryData.current;
+                                return ArtistListView(data: data);
                               },
                             ),
                           ),
@@ -333,6 +360,89 @@ class _QuadMenuState extends State<QuadMenu> {
             ),
           ),
         ]));
+  }
+}
+
+class ArtistListView extends StatelessWidget {
+  ArtistListView({
+    super.key,
+    required this.data,
+  });
+
+  final List<ParseObject> data;
+
+  final List<Map<String, dynamic>> items = [
+    {
+      'image': 'assets/sample_image.png',
+      'headline': 'Exciting News!',
+      'description': 'This is a brief description of the news item.',
+      'genre': 'Rock',
+      'type': 'Band',
+    },
+    {
+      'image': 'assets/sample_image.png',
+      'headline': 'DJ Sorry',
+      'description': 'This is a brief description of the news item.',
+      'genre': 'Techno',
+      'type': 'DJ',
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(
+                item['image'],
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: 200,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  item['headline'],
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  item['description'],
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Chip(
+                      label: Text(item['genre']),
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                    const SizedBox(width: 8),
+                    Chip(
+                      label: Text(item['type']),
+                      backgroundColor: Colors.greenAccent,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -522,6 +632,30 @@ class CustomMarker extends StatelessWidget {
         Icons.location_on,
         color: Theme.of(context).primaryColor,
       ),
+    );
+  }
+}
+
+class FintaActionChip extends StatefulWidget {
+  const FintaActionChip({super.key});
+
+  @override
+  State<FintaActionChip> createState() => _FintaActionChipState();
+}
+
+class _FintaActionChipState extends State<FintaActionChip> {
+  bool toggle = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      avatar: Icon(toggle ? Icons.check : Icons.radio_button_unchecked),
+      label: const Text('Finta'),
+      onPressed: () {
+        setState(() {
+          toggle = !toggle;
+        });
+      },
     );
   }
 }
