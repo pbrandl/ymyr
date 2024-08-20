@@ -1,14 +1,12 @@
 // import 'package:flutter_map/flutter_map.dart';
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/dropdowns.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/map.dart';
+import 'package:ymyr/sidebar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +73,7 @@ class _HomeState extends State<Home> {
       child: MaterialApp(
         title: 'YMYR',
         home: Scaffold(
-          body: Stack(children: [
+          body: Stack(clipBehavior: Clip.none, children: [
             OSMFlutterMap(),
             Positioned(
               top: 20,
@@ -85,7 +83,7 @@ class _HomeState extends State<Home> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                      color: Colors.white,
+                      color: Theme.of(context).primaryColorLight,
                       width: 60,
                       child: Picker(
                         defaultText: 'Genre',
@@ -94,7 +92,7 @@ class _HomeState extends State<Home> {
                       )),
                   const SizedBox(width: 32),
                   Container(
-                      color: Colors.white,
+                      color: Theme.of(context).primaryColorLight,
                       width: 60,
                       child: Picker(
                         defaultText: 'Type',
@@ -127,6 +125,7 @@ class _HomeState extends State<Home> {
                 top: 90,
                 child: Center(child: Text("Wähle deine Location")),
               ),
+            SideBarNotch(),
           ]),
           floatingActionButton: !_pickerNotifier.mode
               ? QuadMenu(
@@ -415,6 +414,7 @@ class _FintaActionChipState extends State<FintaActionChip> {
         setState(() {
           toggle = !toggle;
         });
+        AppState.of(context)!.dataNotifier.finta = toggle;
       },
     );
   }
