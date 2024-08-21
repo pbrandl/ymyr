@@ -11,9 +11,8 @@ class Create extends StatefulWidget {
 
 class _CreateState extends State<Create> {
   final PageController _pageController = PageController();
-  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _nameController = TextEditingController();
 
-  String name = "";
   String selectedGenre = "";
 
   void _goToNextPage() {
@@ -41,19 +40,10 @@ class _CreateState extends State<Create> {
   @override
   void initState() {
     super.initState();
-    // Request focus after the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_focusNode);
-    });
-
-    Future.delayed(Duration(milliseconds: 100), () {
-      FocusScope.of(context).requestFocus(_focusNode);
-    });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -65,66 +55,12 @@ class _CreateState extends State<Create> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          _buildNamePage(),
-          _buildDropdownPage(),
-        ],
-      ),
-    );
-  }
-
-  void openKeyboard() {
-    FocusScope.of(context).requestFocus(_focusNode);
-  }
-
-  Widget _buildNamePage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 32),
-          TextField(
-            focusNode: _focusNode,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: "What's your name?",
-              labelStyle: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              border: InputBorder.none,
-            ),
-            style: const TextStyle(
-              fontSize: 24.0,
-            ),
-            onChanged: (value) {
-              setState(() {
-                name = value;
-              });
-            },
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                _goToNextPage();
-              }
-            },
+          NameInput(
+            nameController: _nameController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FilledButton.icon(
-                onPressed: _goToPreviousPage,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Back"),
-              ),
-              FilledButton.icon(
-                onPressed: name.isNotEmpty ? _goToNextPage : null,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
-              ),
-            ],
-          )
+          _buildDropdownPage(),
         ],
       ),
     );
@@ -158,7 +94,70 @@ class _CreateState extends State<Create> {
                 label: const Text("Back"),
               ),
               FilledButton.icon(
-                onPressed: name.isNotEmpty ? _goToNextPage : null,
+                onPressed: _goToNextPage,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text("Next"),
+                iconAlignment: IconAlignment.end,
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class NameInput extends StatelessWidget {
+  final TextEditingController nameController;
+  final VoidCallback goToPreviousPage;
+  final VoidCallback goToNextPage;
+
+  const NameInput({
+    super.key,
+    required this.nameController,
+    required this.goToNextPage,
+    required this.goToPreviousPage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(height: 32),
+          TextField(
+            controller: nameController,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: "What's your name?",
+              labelStyle: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: InputBorder.none,
+            ),
+            style: const TextStyle(
+              fontSize: 24.0,
+            ),
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                goToNextPage();
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FilledButton.icon(
+                onPressed: goToPreviousPage,
+                icon: const Icon(Icons.arrow_back),
+                label: const Text("Back"),
+              ),
+              FilledButton.icon(
+                onPressed: nameController.text.isNotEmpty ? goToNextPage : null,
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text("Next"),
                 iconAlignment: IconAlignment.end,
