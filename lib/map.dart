@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
+import 'package:ymyr/main.dart';
 
 class OSMFlutterMap extends StatelessWidget {
   OSMFlutterMap({super.key});
@@ -13,10 +14,14 @@ class OSMFlutterMap extends StatelessWidget {
 
   final LatLng initialCenter = LatLng(48.7758, 9.1829); // Stuttgart
 
-  Marker drawMarker(LatLng geoPoint) {
+  Marker drawMarker(ParseObject entry) {
+    ParseGeoPoint point = entry['Coordinates'];
+    final double latitude = point.latitude;
+    final double longitude = point.longitude;
+
     return Marker(
-      point: geoPoint,
-      builder: (context) => const CustomMarker(),
+      point: LatLng(latitude, longitude),
+      builder: (context) => CustomMarker(data: entry),
     );
   }
 
@@ -55,10 +60,7 @@ class OSMFlutterMap extends StatelessWidget {
                   maxClusterRadius: 45,
                   size: const Size(40, 40),
                   markers: data.map((entry) {
-                    ParseGeoPoint point = entry['Coordinates'];
-                    final double latitude = point.latitude;
-                    final double longitude = point.longitude;
-                    return drawMarker(LatLng(latitude, longitude));
+                    return drawMarker(entry);
                   }).toList(),
                   builder: (context, markers) {
                     return Container(
@@ -93,8 +95,11 @@ class OSMFlutterMap extends StatelessWidget {
 }
 
 class CustomMarker extends StatelessWidget {
+  final ParseObject data;
+
   const CustomMarker({
     super.key,
+    required this.data,
   });
 
   @override
@@ -103,26 +108,7 @@ class CustomMarker extends StatelessWidget {
       onTap: () => showBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return FractionallySizedBox(
-            heightFactor: 0.97,
-            child: SizedBox(
-              width: 400,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: CloseButton(
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                    const Placeholder()
-                  ],
-                ),
-              ),
-            ),
-          );
+          return ArtistProfile(artist: data);
         },
       ),
       child: Icon(

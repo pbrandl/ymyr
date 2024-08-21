@@ -243,37 +243,77 @@ class _QuadMenuState extends State<QuadMenu> {
   }
 }
 
+class ArtistProfile extends StatelessWidget {
+  final ParseObject artist;
+
+  const ArtistProfile({
+    super.key,
+    required this.artist,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      heightFactor: 0.97,
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: CloseButton(
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              Column(
+                children: [
+                  artist['Image'] == null
+                      ? Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: Icon(
+                            Icons.image,
+                            size: 50,
+                            color: Colors.grey[400],
+                          ),
+                        )
+                      : SizedBox(
+                          height: 400,
+                          child: Image.network(
+                            artist['Image']!.url,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                  Text(artist['Name']),
+                  Text(artist['Genre']),
+                  Text(artist['Type']),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class ArtistListView extends StatelessWidget {
-  ArtistListView({
+  final List<ParseObject> data;
+
+  const ArtistListView({
     super.key,
     required this.data,
   });
 
-  final List<ParseObject> data;
-
-  final List<Map<String, dynamic>> items = [
-    {
-      'image': 'assets/sample_image.png',
-      'headline': 'Exciting News!',
-      'description': 'This is a brief description of the news item.',
-      'genre': 'Rock',
-      'type': 'Band',
-    },
-    {
-      'image': 'assets/sample_image.png',
-      'headline': 'DJ Sorry',
-      'description': 'This is a brief description of the news item.',
-      'genre': 'Techno',
-      'type': 'DJ',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: items.length,
+      itemCount: data.length,
       itemBuilder: (context, index) {
-        final item = items[index];
+        final item = data[index];
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

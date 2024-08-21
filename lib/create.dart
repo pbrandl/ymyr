@@ -355,8 +355,6 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
         var f = await image.readAsBytes();
         setState(() => webImage = f);
         widget.onImageChange(f);
-      } else {
-        debugPrint("No file selected");
       }
     } else {
       debugPrint("This platform is not web");
