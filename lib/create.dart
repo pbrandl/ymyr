@@ -73,56 +73,58 @@ class _CreateState extends State<Create> {
   }
 
   Widget _buildNamePage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 32),
-          TextField(
-            focusNode: _focusNode,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: "What's your name?",
-              labelStyle: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold),
-              floatingLabelBehavior:
-                  FloatingLabelBehavior.always, // Label hovers all the time
-              border: InputBorder.none, // No border around the TextField
-            ),
-            style: const TextStyle(
-              fontSize: 24.0,
-            ),
-            onChanged: (value) {
-              setState(() {
-                name = value;
-              });
-            },
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                _goToNextPage();
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FilledButton.icon(
-                onPressed: _goToPreviousPage,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Back"),
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(height: 32),
+            TextField(
+              focusNode: _focusNode,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: "What's your name?",
+                labelStyle: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold),
+                floatingLabelBehavior:
+                    FloatingLabelBehavior.always, // Label hovers all the time
+                border: InputBorder.none, // No border around the TextField
               ),
-              FilledButton.icon(
-                onPressed: name.isNotEmpty ? _goToNextPage : null,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
+              style: const TextStyle(
+                fontSize: 24.0,
               ),
-            ],
-          )
-        ],
+              onChanged: (value) {
+                setState(() {
+                  name = value;
+                });
+              },
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  _goToNextPage();
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FilledButton.icon(
+                  onPressed: _goToPreviousPage,
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text("Back"),
+                ),
+                FilledButton.icon(
+                  onPressed: name.isNotEmpty ? _goToNextPage : null,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text("Next"),
+                  iconAlignment: IconAlignment.end,
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
