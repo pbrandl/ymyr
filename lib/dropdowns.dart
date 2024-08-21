@@ -57,6 +57,7 @@ class Picker extends StatefulWidget {
   final Function onChanged;
   final bool autofocus;
   final bool transparentBackground;
+  final bool fullscreen;
 
   const Picker({
     super.key,
@@ -65,6 +66,7 @@ class Picker extends StatefulWidget {
     required this.onChanged,
     this.autofocus = false,
     this.transparentBackground = false,
+    this.fullscreen = false,
   });
 
   @override
@@ -92,7 +94,7 @@ class PickerState extends State<Picker> {
       barrierColor:
           widget.transparentBackground ? Colors.transparent : Colors.black12,
       builder: (BuildContext context) => Container(
-        height: 275,
+        height: widget.fullscreen == false ? 275 : null,
         padding: const EdgeInsets.only(top: 6.0),
         margin: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,

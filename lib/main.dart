@@ -85,7 +85,7 @@ class _HomeState extends State<Home> {
                       width: 60,
                       child: Picker(
                         defaultText: 'Genre',
-                        items: genres,
+                        items: ['All'] + genreStringMap.values.toList(),
                         onChanged: (genre) => _dataNotifier.genre = genre,
                       )),
                   const SizedBox(width: 32),
@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
                       width: 60,
                       child: Picker(
                         defaultText: 'Type',
-                        items: types,
+                        items: ['All'] + typeStringMap.values.toList(),
                         onChanged: (type) => _dataNotifier.type = type,
                       )),
                   const SizedBox(width: 32),
@@ -102,13 +102,6 @@ class _HomeState extends State<Home> {
                 ],
               ),
             ),
-            if (_pickerNotifier.mode)
-              const Positioned(
-                  top: 50,
-                  right: 50,
-                  left: 50,
-                  bottom: 50,
-                  child: IconAnimation(icon: Icons.my_location)),
             if (_pickerNotifier.mode)
               const Positioned(
                 right: 50,

@@ -39,8 +39,10 @@ dependencies:
   latlong2: ^0.8.0
   parse_server_sdk_flutter: ^8.0.0
   flutter_map_marker_cluster: any
-  defer_pointer: ^0.0.2
   rxdart: ^0.28.0
+  image_picker: ^1.1.2
+  permission_handler: ^8.1.4+2
+
 
 dev_dependencies:
   flutter_test:

@@ -2,16 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
-final List<String> genres = [
-  'All',
-  'Rock',
-  'Pop',
-  'Jazz',
-  'Classical',
-  'Hip-Hop'
-];
+enum Genre {
+  rock,
+  pop,
+  jazz,
+  classical,
+  hipHop,
+}
 
-final List<String> types = ['All', 'Band', 'DJ'];
+enum Type {
+  band,
+  dj,
+}
+
+final Map<Genre, String> genreStringMap = {
+  Genre.rock: 'Rock',
+  Genre.pop: 'Pop',
+  Genre.jazz: 'Jazz',
+  Genre.classical: 'Classical',
+  Genre.hipHop: 'Hip-Hop',
+};
+
+final Map<Type, String> typeStringMap = {
+  Type.band: 'Band',
+  Type.dj: 'DJ',
+};
 
 enum Category { event, artist }
 
@@ -30,6 +45,7 @@ class AppState extends InheritedWidget {
   List<ParseObject> get artists => dataNotifier.artists;
 
   bool get mode => locationPickerNotifier.mode;
+  set mode(bool b) => locationPickerNotifier.mode = b;
 
   const AppState({
     super.key,
@@ -51,19 +67,17 @@ class AppState extends InheritedWidget {
 }
 
 class LocationPickerNotifier extends ChangeNotifier {
-  bool _mode = false;
-  LatLng? _center;
-
-  bool get mode => _mode;
+  bool mode = false;
+  LatLng _center = LatLng(48.7758, 9.1829);
 
   LatLng? get center => _center;
 
   void toggleLocationPickerMode() {
-    _mode = !_mode;
+    mode = !mode;
     notifyListeners();
   }
 
-  void setLocation(LatLng? center) {
+  void setLocation(LatLng center) {
     _center = center;
     debugPrint(_center.toString());
     notifyListeners();
