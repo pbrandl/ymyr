@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ymyr/main.dart';
@@ -167,14 +168,19 @@ class _CreateState extends State<Create> {
             initalSelection: selectedType,
             items: types,
             onChanged: (value) => setState(() => selectedType = value),
-            goToPreviousPage: _goToPreviousPage,
+            goToPreviousPage: () {
+              _goToPreviousPage();
+            },
             goToNextPage: _goToNextPage,
           ),
           ImagePickerWidget(
-            onImageChange: (image) => setState(() => webImage = ParseWebFile(
-                  image,
-                  name: '${_nameController.text}_image.png',
-                )),
+            initalImage: webImage,
+            onImageChange: (image) => setState(
+              () => webImage = ParseWebFile(
+                image,
+                name: '${_nameController.text}_image.png',
+              ),
+            ),
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
@@ -317,12 +323,14 @@ class ImagePickerWidget extends StatefulWidget {
   final Function(Uint8List?) onImageChange;
   final VoidCallback goToPreviousPage;
   final VoidCallback goToNextPage;
+  final ParseWebFile? initalImage;
 
   const ImagePickerWidget({
     super.key,
     required this.onImageChange,
     required this.goToPreviousPage,
     required this.goToNextPage,
+    this.initalImage,
   });
 
   @override
@@ -331,6 +339,12 @@ class ImagePickerWidget extends StatefulWidget {
 
 class ImagePickerWidgetState extends State<ImagePickerWidget> {
   Uint8List? webImage;
+
+  @override
+  void initState() {
+    super.initState();
+    webImage = widget.initalImage?.file;
+  }
 
   Future<void> _pickImage() async {
     if (kIsWeb) {
@@ -418,8 +432,8 @@ class FullscreenPicker extends StatefulWidget {
   final int initalSelection;
   final List<String> items;
   final Function(int) onChanged;
-  final VoidCallback goToPreviousPage;
-  final VoidCallback goToNextPage;
+  final Function goToPreviousPage;
+  final Function goToNextPage;
 
   const FullscreenPicker({
     super.key,
