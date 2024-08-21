@@ -68,6 +68,10 @@ class _CreateState extends State<Create> {
     );
   }
 
+  void openKeyboard() {
+    FocusScope.of(context).requestFocus(_focusNode);
+  }
+
   Widget _buildNamePage() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
