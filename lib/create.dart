@@ -92,12 +92,14 @@ class _CreateState extends State<Create> {
     }
   }
 
-  void uploadHandler() {
+  void _uploadHandler() {
     setState(() => isUploading = true);
 
     uploadArtistData().then((_) {
       _goToNextPage();
-    }).catchError((e) => _showErrorDialog(e));
+    }).catchError(
+      (e) => _showErrorDialog(e),
+    );
   }
 
   void _showFullScreenSnackBar() {
@@ -189,15 +191,22 @@ class _CreateState extends State<Create> {
                       icon: const Icon(Icons.arrow_back),
                       label: const Text("Back"),
                     ),
-                    FilledButton.icon(
-                      onPressed: () => isUploading ? null : uploadHandler(),
-                      icon: const Icon(Icons.arrow_forward),
-                      label: const Text("Upload"),
-                      iconAlignment: IconAlignment.end,
-                    ),
                   ],
                 ),
               ),
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: FilledButton(
+                  onPressed: isUploading ? null : () => _uploadHandler(),
+                  iconAlignment: IconAlignment.end,
+                  child: isUploading
+                      ? CircularProgressIndicator(
+                          color: Theme.of(context).primaryColor)
+                      : const Text("Upload"),
+                ),
+              )
             ],
           ),
           const SuccessScreen(message: "Success")
@@ -400,77 +409,6 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
             ],
           ),
         ),
-      ],
-    );
-  }
-}
-
-class ImagePickerWidget2 extends StatefulWidget {
-  const ImagePickerWidget2({super.key});
-
-  @override
-  ImagePickerWidget2State createState() => ImagePickerWidget2State();
-}
-
-class ImagePickerWidget2State extends State<ImagePickerWidget2> {
-  Future<PermissionStatus> requestPermissions() async {
-    await Permission.photos.request();
-    return Permission.photos.status;
-  }
-
-  uploadImage() async {
-    var permissionStatus = requestPermissions();
-
-    // MOBILE
-    if (!kIsWeb && await permissionStatus.isGranted) {
-      final ImagePicker _picker = ImagePicker();
-      XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-      if (image != null) {
-        var selected = File(image.path);
-
-        setState(() {
-          _file = selected;
-        });
-      } else {
-        debugPrint("No file selected");
-      }
-    }
-    // WEB
-    else if (kIsWeb) {
-      final ImagePicker picker = ImagePicker();
-      XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        var f = await image.readAsBytes();
-        setState(() {
-          webImage = f;
-        });
-      } else {
-        debugPrint("No file selected");
-      }
-    } else {
-      debugPrint("Permission not granted");
-    }
-  }
-
-  File _file = File("zz");
-  Uint8List webImage = Uint8List(10);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        (_file.path == "zz")
-            ? Image.asset("assets/img/images.jpeg")
-            : (kIsWeb)
-                ? Image.memory(webImage)
-                : Image.file(_file),
-        const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () => uploadImage(),
-          child: const Text("Upload"),
-        )
       ],
     );
   }
