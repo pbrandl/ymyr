@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:ymyr/create.dart';
 
 class SideBarNotch extends StatefulWidget {
   const SideBarNotch({super.key});
@@ -71,7 +72,13 @@ class _SideBarNotchState extends State<SideBarNotch>
                 child: Container(
                   width: 40,
                   height: 110,
-                  color: Theme.of(context).primaryColorLight,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColorLight,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                    ),
+                  ),
                   child: Center(
                     child: AnimatedIcon(
                       icon: AnimatedIcons.menu_close,
@@ -88,28 +95,34 @@ class _SideBarNotchState extends State<SideBarNotch>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FilledButton(
-                        onPressed: () => {},
-                        child: Text("Create Artists"),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Create()),
+                          );
+                        },
+                        child: const Text("Create Artists"),
                       ),
                       const SizedBox(height: 16),
                       FilledButton(
                         onPressed: () => {},
-                        child: Text("Create Events"),
+                        child: const Text("Create Events"),
                       ),
                       const SizedBox(height: 16),
                       FilledButton(
                         onPressed: () => {
                           showAboutDialog(
-                              applicationIcon: Icon(Icons.yard),
+                              applicationIcon: const Icon(Icons.yard),
                               applicationName: "YMYR",
                               applicationVersion: "0.1",
                               children: [
-                                Text(
+                                const Text(
                                     "YMYR TextLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.")
                               ],
                               context: context)
                         },
-                        child: Text("About"),
+                        child: const Text("About"),
                       ),
                     ],
                   ),

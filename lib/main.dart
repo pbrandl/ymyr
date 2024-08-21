@@ -1,5 +1,3 @@
-// import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
@@ -125,7 +123,7 @@ class _HomeState extends State<Home> {
                 top: 90,
                 child: Center(child: Text("Wähle deine Location")),
               ),
-            SideBarNotch(),
+            const SideBarNotch(),
           ]),
           floatingActionButton: !_pickerNotifier.mode
               ? QuadMenu(
@@ -224,7 +222,6 @@ class _QuadMenuState extends State<QuadMenu> {
                       );
                     },
                   ).closed.then((value) => widget.menuState.toggleView());
-                  ;
                 } else {
                   Navigator.pop(context);
                   widget.menuState.toggleView();

@@ -55,12 +55,17 @@ class Picker extends StatefulWidget {
   final String defaultText;
   final List<String> items;
   final Function onChanged;
+  final bool autofocus;
+  final bool transparentBackground;
 
-  const Picker(
-      {super.key,
-      required this.defaultText,
-      required this.items,
-      required this.onChanged});
+  const Picker({
+    super.key,
+    required this.defaultText,
+    required this.items,
+    required this.onChanged,
+    this.autofocus = false,
+    this.transparentBackground = false,
+  });
 
   @override
   State<Picker> createState() => PickerState();
@@ -69,12 +74,25 @@ class Picker extends StatefulWidget {
 class PickerState extends State<Picker> {
   int _selected = 0;
 
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showDialog();
+      });
+    }
+  }
+
   // This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoPicker.
-  void _showDialog(Widget child) {
+  void _showDialog() {
     showCupertinoModalPopup<void>(
       context: context,
+      barrierColor:
+          widget.transparentBackground ? Colors.transparent : Colors.black12,
       builder: (BuildContext context) => Container(
-        height: 216,
+        height: 275,
         padding: const EdgeInsets.only(top: 6.0),
         margin: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -82,7 +100,32 @@ class PickerState extends State<Picker> {
         color: CupertinoColors.systemBackground.resolveFrom(context),
         child: SafeArea(
           top: false,
-          child: child,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: CupertinoPicker(
+                  magnification: 1,
+                  squeeze: 1.3,
+                  useMagnifier: true,
+                  itemExtent: 30,
+                  scrollController: FixedExtentScrollController(
+                    initialItem: _selected,
+                  ),
+                  onSelectedItemChanged: (int selectedItem) {
+                    setState(() {
+                      _selected = selectedItem;
+                    });
+                    widget.onChanged(widget.items[_selected]);
+                  },
+                  children:
+                      List<Widget>.generate(widget.items.length, (int index) {
+                    return Center(child: Text(widget.items[index]));
+                  }),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -92,26 +135,7 @@ class PickerState extends State<Picker> {
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      onPressed: () => _showDialog(
-        CupertinoPicker(
-          magnification: 1,
-          squeeze: 1.3,
-          useMagnifier: true,
-          itemExtent: 30,
-          scrollController: FixedExtentScrollController(
-            initialItem: _selected,
-          ),
-          onSelectedItemChanged: (int selectedItem) {
-            setState(() {
-              _selected = selectedItem;
-            });
-            widget.onChanged(widget.items[_selected]);
-          },
-          children: List<Widget>.generate(widget.items.length, (int index) {
-            return Center(child: Text(widget.items[index]));
-          }),
-        ),
-      ),
+      onPressed: () => _showDialog(),
       // This displays the selected name or default if 'All' selected
       child: Text(
         overflow: TextOverflow.ellipsis,
