@@ -39,6 +39,15 @@ class _CreateState extends State<Create> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Request focus after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
+
+  @override
   void dispose() {
     _focusNode.dispose();
     _pageController.dispose();
