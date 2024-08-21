@@ -107,7 +107,7 @@ class _CreateState extends State<Create> {
   }
 }
 
-class NameInput extends StatelessWidget {
+class NameInput extends StatefulWidget {
   final TextEditingController nameController;
   final VoidCallback goToPreviousPage;
   final VoidCallback goToNextPage;
@@ -120,6 +120,37 @@ class NameInput extends StatelessWidget {
   });
 
   @override
+  State<NameInput> createState() => _NameInputState();
+}
+
+class _NameInputState extends State<NameInput> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _focusNode = FocusNode();
+
+    widget.nameController.addListener(_updateState);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    widget.nameController.removeListener(_updateState);
+    super.dispose();
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -128,7 +159,8 @@ class NameInput extends StatelessWidget {
         children: [
           const SizedBox(height: 32),
           TextField(
-            controller: nameController,
+            controller: widget.nameController,
+            focusNode: _focusNode,
             autofocus: true,
             decoration: InputDecoration(
               labelText: "What's your name?",
@@ -143,7 +175,7 @@ class NameInput extends StatelessWidget {
             ),
             onSubmitted: (value) {
               if (value.isNotEmpty) {
-                goToNextPage();
+                widget.goToNextPage();
               }
             },
           ),
@@ -152,12 +184,14 @@ class NameInput extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               FilledButton.icon(
-                onPressed: goToPreviousPage,
+                onPressed: widget.goToPreviousPage,
                 icon: const Icon(Icons.arrow_back),
                 label: const Text("Back"),
               ),
               FilledButton.icon(
-                onPressed: nameController.text.isNotEmpty ? goToNextPage : null,
+                onPressed: widget.nameController.text.isNotEmpty
+                    ? widget.goToNextPage
+                    : null,
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text("Next"),
                 iconAlignment: IconAlignment.end,
