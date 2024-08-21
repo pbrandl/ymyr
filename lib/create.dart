@@ -11,6 +11,8 @@ class Create extends StatefulWidget {
 
 class _CreateState extends State<Create> {
   final PageController _pageController = PageController();
+  final FocusNode _focusNode = FocusNode();
+
   String name = "";
   String selectedGenre = "";
 
@@ -38,6 +40,7 @@ class _CreateState extends State<Create> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -64,6 +67,7 @@ class _CreateState extends State<Create> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           TextField(
+            focusNode: _focusNode,
             autofocus: true,
             decoration: InputDecoration(
               labelText: "What's your name?",
