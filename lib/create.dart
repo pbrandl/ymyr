@@ -59,7 +59,7 @@ class _CreateState extends State<Create> {
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        // physics: NeverScrollableScrollPhysics(), // Disable swipe navigation
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           _buildNamePage(),
           _buildDropdownPage(),
@@ -72,9 +72,9 @@ class _CreateState extends State<Create> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          const SizedBox(height: 32),
           TextField(
             focusNode: _focusNode,
             autofocus: true,
@@ -135,7 +135,7 @@ class _CreateState extends State<Create> {
               const Text("My genre: "),
               Picker(
                 defaultText: 'Genre',
-                items: genres,
+                items: genres.sublist(1),
                 onChanged: (genre) => selectedGenre = genre,
                 autofocus: true,
                 transparentBackground: true,
