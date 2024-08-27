@@ -176,10 +176,16 @@ class DataNotifier extends ChangeNotifier {
   }
 
   DataNotifier() {
-    Future.wait([
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    await Future.delayed(const Duration(seconds: 3));
+    await Future.wait([
       fetchArtists(),
       fetchEvents(),
     ]);
+    notifyListeners();
   }
 
   Future<void> fetchArtists() async {
@@ -191,7 +197,6 @@ class DataNotifier extends ChangeNotifier {
     if (response.success && response.results != null) {
       _artists = response.results as List<ParseObject>;
       _filtered = _artists;
-      notifyListeners();
     } else {
       print('Failed to fetch artists: ${response.error?.message}');
     }
@@ -206,7 +211,6 @@ class DataNotifier extends ChangeNotifier {
 
     if (response.success && response.results != null) {
       _events = response.results as List<ParseObject>;
-      notifyListeners();
     } else {
       // Handle error
       print('Failed to fetch events: ${response.error?.message}');

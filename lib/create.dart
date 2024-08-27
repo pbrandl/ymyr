@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -7,9 +6,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:ymyr/main.dart';
 import 'package:ymyr/map.dart';
 
@@ -74,7 +71,7 @@ class _CreateState extends State<Create> {
   Future<void> uploadArtistData() async {
     LatLng? coord = AppState.of(context)!.locationPickerNotifier.center;
     ParseGeoPoint geoPoint =
-        ParseGeoPoint(latitude: coord!.latitude, longitude: coord.longitude);
+        ParseGeoPoint(latitude: coord.latitude, longitude: coord.longitude);
 
     final artist = ParseObject('Artists')
       ..set('Name', _nameController.text)
@@ -101,30 +98,6 @@ class _CreateState extends State<Create> {
     }).catchError(
       (e) => _showErrorDialog(e),
     );
-  }
-
-  void _showFullScreenSnackBar() {
-    final snackBar = SnackBar(
-      content: Container(
-        height: MediaQuery.of(context).size.height,
-        child: const Center(
-          child: Text(
-            "Success",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18.0),
-          ),
-        ),
-      ),
-      duration: const Duration(seconds: 3),
-      behavior: SnackBarBehavior.fixed,
-      backgroundColor: Colors.green,
-      width: MediaQuery.of(context).size.width,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0),
-      ),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _showErrorDialog(String message) {

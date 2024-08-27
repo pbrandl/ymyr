@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/dropdowns.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/map.dart';
@@ -66,19 +63,40 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return AppState(
-      locationPickerNotifier: _locationNotifier,
-      dataNotifier: _dataNotifier,
-      menuNotifier: _menuNotifier,
-      child: MaterialApp(
-        title: 'YMYR',
-        home: Scaffold(
-          body: LocationSelection(
-            dataNotifier: _dataNotifier,
-            locationNotifier: _locationNotifier,
-            menuNotifier: _menuNotifier,
-          ),
-        ),
+    return MaterialApp(
+      title: 'YMYR',
+      home: Scaffold(
+        body: _dataNotifier.artists.isEmpty
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "YMYR",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      "Version 0.1",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : AppState(
+                locationPickerNotifier: _locationNotifier,
+                dataNotifier: _dataNotifier,
+                menuNotifier: _menuNotifier,
+                child: const LocationSelection(),
+              ),
       ),
     );
   }
@@ -87,27 +105,16 @@ class _HomeState extends State<Home> {
 class LocationSelection extends StatelessWidget {
   const LocationSelection({
     super.key,
-    required DataNotifier dataNotifier,
-    required LocationNotifier locationNotifier,
-    required MenuNotifier menuNotifier,
-  })  : _dataNotifier = dataNotifier,
-        _locationNotifier = locationNotifier,
-        _menuNotifier = menuNotifier;
-
-  final DataNotifier _dataNotifier;
-  final LocationNotifier _locationNotifier;
-  final MenuNotifier _menuNotifier;
+  });
 
   @override
   Widget build(BuildContext context) {
     void pushCityMap(City city) {
-      _locationNotifier.city = city;
+      AppState.of(context)!.locationPickerNotifier.city = city;
+
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => MapScreen(
-              dataNotifier: _dataNotifier,
-              locationNotifier: _locationNotifier,
-              menuNotifier: _menuNotifier),
+          builder: (context) => const MapScreen(),
         ),
       );
     }
@@ -137,18 +144,15 @@ class LocationSelection extends StatelessWidget {
 }
 
 class MapScreen extends StatelessWidget {
-  const MapScreen({
-    super.key,
-    required this.dataNotifier,
-    required this.locationNotifier,
-    required MenuNotifier menuNotifier,
-  });
-
-  final DataNotifier dataNotifier;
-  final LocationNotifier locationNotifier;
+  const MapScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final state = AppState.of(context)!;
+    final DataNotifier dataNotifier = state.dataNotifier;
+    final LocationNotifier locationNotifier = state.locationPickerNotifier;
+    final MenuNotifier menuNotifier = state.menuNotifier;
+
     return Scaffold(
       body: Stack(clipBehavior: Clip.none, children: [
         OSMFlutterMap(),
