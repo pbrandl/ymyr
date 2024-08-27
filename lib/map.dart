@@ -12,8 +12,6 @@ class OSMFlutterMap extends StatelessWidget {
 
   final MapController mapController = MapController();
 
-  final LatLng initialCenter = LatLng(48.7758, 9.1829); // Stuttgart
-
   Marker drawMarker(ParseObject entry) {
     ParseGeoPoint point = entry['Coordinates'];
     final double latitude = point.latitude;
@@ -29,6 +27,8 @@ class OSMFlutterMap extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = AppState.of(context)!;
     final List<ParseObject> data = state.filtered;
+    final LatLng initialCenter = state.center;
+    final LatLngBounds bounds = state.bounds;
 
     void onPositionChanged(MapPosition position, bool hasGesture) {
       if (state.mode) {
@@ -36,18 +36,35 @@ class OSMFlutterMap extends StatelessWidget {
           position.center ?? initialCenter,
         );
       }
+
+      if (!bounds.contains(position.center!)) {
+        debugPrint(position.center.toString());
+
+        final newCenter = LatLng(
+          position.center!.latitude
+              .clamp(bounds.southWest.latitude, bounds.northEast.latitude),
+          position.center!.longitude
+              .clamp(bounds.southWest.longitude, bounds.northEast.longitude),
+        );
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          mapController.move(newCenter, position.zoom!);
+        });
+      }
     }
 
     return Stack(
       children: [
         FlutterMap(
+          mapController: mapController,
           options: MapOptions(
-              center: initialCenter,
-              zoom: 14.0,
-              minZoom: 10.0,
-              maxZoom: 18.0,
-              interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-              onPositionChanged: onPositionChanged),
+            center: initialCenter,
+            zoom: 14.0,
+            minZoom: 12.0,
+            maxZoom: 18.0,
+            interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+            onPositionChanged: onPositionChanged,
+          ),
           children: [
             TileLayer(
               urlTemplate:

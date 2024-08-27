@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
@@ -33,7 +34,7 @@ enum Category { event, artist }
 enum AppView { list, map }
 
 class AppState extends InheritedWidget {
-  final LocationPickerNotifier locationPickerNotifier;
+  final LocationNotifier locationPickerNotifier;
   final DataNotifier dataNotifier;
   final MenuNotifier menuNotifier;
 
@@ -46,6 +47,9 @@ class AppState extends InheritedWidget {
 
   bool get mode => locationPickerNotifier.mode;
   set mode(bool b) => locationPickerNotifier.mode = b;
+
+  LatLng get center => locationPickerNotifier.center;
+  LatLngBounds get bounds => locationPickerNotifier.bounds;
 
   const AppState({
     super.key,
@@ -66,11 +70,41 @@ class AppState extends InheritedWidget {
   }
 }
 
-class LocationPickerNotifier extends ChangeNotifier {
-  bool mode = false;
-  LatLng _center = LatLng(48.7758, 9.1829);
+enum City { freiburg, stuttgart }
 
-  LatLng? get center => _center;
+final Map<City, (LatLng, LatLngBounds)> cityToCoord = {
+  City.stuttgart: (
+    LatLng(48.7758, 9.1829),
+    LatLngBounds(LatLng(48.75, 9.15), LatLng(48.8, 9.25)),
+  ),
+  City.freiburg: (
+    LatLng(47.9990, 7.8421),
+    LatLngBounds(LatLng(47.9740, 7.8121), LatLng(48.0240, 7.8721))
+  ),
+};
+
+class LocationNotifier extends ChangeNotifier {
+  City _city = City.stuttgart;
+
+  bool mode = false;
+  LatLng _center;
+  LatLngBounds _bounds;
+
+  LocationNotifier()
+      : _center = cityToCoord[City.stuttgart]!.$1,
+        _bounds = cityToCoord[City.stuttgart]!.$2;
+
+  City get city => _city;
+  LatLng get center => _center;
+  LatLngBounds get bounds => _bounds;
+
+  set city(City newCity) {
+    _city = newCity;
+    final (center, bounds) = cityToCoord[_city]!;
+    _center = center;
+    _bounds = bounds;
+    notifyListeners();
+  }
 
   void toggleLocationPickerMode() {
     mode = !mode;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/dropdowns.dart';
@@ -32,15 +34,15 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late LocationPickerNotifier _pickerNotifier;
+  late LocationNotifier _locationNotifier;
   late DataNotifier _dataNotifier;
   late MenuNotifier _menuNotifier;
 
   @override
   void initState() {
     super.initState();
-    _pickerNotifier = LocationPickerNotifier();
-    _pickerNotifier.addListener(_update);
+    _locationNotifier = LocationNotifier();
+    _locationNotifier.addListener(_update);
     _dataNotifier = DataNotifier();
     _dataNotifier.addListener(_update);
     _menuNotifier = MenuNotifier();
@@ -49,8 +51,8 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
-    _pickerNotifier.removeListener(_update);
-    _pickerNotifier.dispose();
+    _locationNotifier.removeListener(_update);
+    _locationNotifier.dispose();
     _dataNotifier.removeListener(_update);
     _dataNotifier.dispose();
     _menuNotifier.removeListener(_update);
@@ -65,69 +67,150 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return AppState(
-      locationPickerNotifier: _pickerNotifier,
+      locationPickerNotifier: _locationNotifier,
       dataNotifier: _dataNotifier,
       menuNotifier: _menuNotifier,
       child: MaterialApp(
         title: 'YMYR',
         home: Scaffold(
-          body: Stack(clipBehavior: Clip.none, children: [
-            OSMFlutterMap(),
-            Positioned(
-              top: 20,
-              right: 50,
-              left: 50,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                      color: Theme.of(context).primaryColorLight,
-                      width: 60,
-                      child: Picker(
-                        defaultText: 'Genre',
-                        items: ['All'] + genreStringMap.values.toList(),
-                        onChanged: (genre) => _dataNotifier.genre = genre,
-                      )),
-                  const SizedBox(width: 32),
-                  Container(
-                      color: Theme.of(context).primaryColorLight,
-                      width: 60,
-                      child: Picker(
-                        defaultText: 'Type',
-                        items: ['All'] + typeStringMap.values.toList(),
-                        onChanged: (type) => _dataNotifier.type = type,
-                      )),
-                  const SizedBox(width: 32),
-                  const FintaActionChip(),
-                ],
-              ),
-            ),
-            if (_pickerNotifier.mode)
-              const Positioned(
-                right: 50,
-                left: 50,
-                bottom: 40,
-                child: AddMenu(),
-              ),
-            if (_pickerNotifier.mode)
-              const Positioned(
-                right: 50,
-                left: 50,
-                top: 90,
-                child: Center(child: Text("Wähle deine Location")),
-              ),
-            const SideBarNotch(),
-          ]),
-          floatingActionButton: !_pickerNotifier.mode
-              ? QuadMenu(
-                  menuState: _menuNotifier,
-                  categoryData: _dataNotifier,
-                )
-              : null,
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
+          body: LocationSelection(
+            dataNotifier: _dataNotifier,
+            locationNotifier: _locationNotifier,
+            menuNotifier: _menuNotifier,
+          ),
         ),
       ),
+    );
+  }
+}
+
+class LocationSelection extends StatelessWidget {
+  const LocationSelection({
+    super.key,
+    required DataNotifier dataNotifier,
+    required LocationNotifier locationNotifier,
+    required MenuNotifier menuNotifier,
+  })  : _dataNotifier = dataNotifier,
+        _locationNotifier = locationNotifier,
+        _menuNotifier = menuNotifier;
+
+  final DataNotifier _dataNotifier;
+  final LocationNotifier _locationNotifier;
+  final MenuNotifier _menuNotifier;
+
+  @override
+  Widget build(BuildContext context) {
+    void pushCityMap(City city) {
+      _locationNotifier.city = city;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MapScreen(
+              dataNotifier: _dataNotifier,
+              locationNotifier: _locationNotifier,
+              menuNotifier: _menuNotifier),
+        ),
+      );
+    }
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text("Choose your city"),
+          const SizedBox(
+            height: 16,
+          ),
+          FilledButton(
+              onPressed: () => pushCityMap(City.stuttgart),
+              child: const Text("Stuttgart")),
+          const SizedBox(
+            height: 16,
+          ),
+          FilledButton(
+              onPressed: () => pushCityMap(City.freiburg),
+              child: const Text("Freiburg"))
+        ],
+      ),
+    );
+  }
+}
+
+class MapScreen extends StatelessWidget {
+  const MapScreen({
+    super.key,
+    required this.dataNotifier,
+    required this.locationNotifier,
+    required MenuNotifier menuNotifier,
+  });
+
+  final DataNotifier dataNotifier;
+  final LocationNotifier locationNotifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(clipBehavior: Clip.none, children: [
+        OSMFlutterMap(),
+        Positioned(
+          left: 20,
+          top: 20,
+          child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back)),
+        ),
+        Positioned(
+          top: 20,
+          right: 50,
+          left: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                  color: Theme.of(context).primaryColorLight,
+                  width: 60,
+                  child: Picker(
+                    defaultText: 'Genre',
+                    items: ['All'] + genreStringMap.values.toList(),
+                    onChanged: (genre) => dataNotifier.genre = genre,
+                  )),
+              const SizedBox(width: 32),
+              Container(
+                  color: Theme.of(context).primaryColorLight,
+                  width: 60,
+                  child: Picker(
+                    defaultText: 'Type',
+                    items: ['All'] + typeStringMap.values.toList(),
+                    onChanged: (type) => dataNotifier.type = type,
+                  )),
+              const SizedBox(width: 32),
+              const FintaActionChip(),
+            ],
+          ),
+        ),
+        if (locationNotifier.mode)
+          const Positioned(
+            right: 50,
+            left: 50,
+            bottom: 40,
+            child: AddMenu(),
+          ),
+        if (locationNotifier.mode)
+          const Positioned(
+            right: 50,
+            left: 50,
+            top: 90,
+            child: Center(child: Text("Wähle deine Location")),
+          ),
+        const SideBarNotch(),
+      ]),
+      floatingActionButton: !locationNotifier.mode
+          ? QuadMenu(
+              menuState: menuNotifier,
+              categoryData: dataNotifier,
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
