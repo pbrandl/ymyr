@@ -208,25 +208,15 @@ class MapScreen extends StatelessWidget {
           ),
         const SideBarNotch(),
       ]),
-      floatingActionButton: !locationNotifier.mode
-          ? QuadMenu(
-              menuState: menuNotifier,
-              categoryData: dataNotifier,
-            )
-          : null,
+      floatingActionButton: !locationNotifier.mode ? const QuadMenu() : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
 
 class QuadMenu extends StatefulWidget {
-  final MenuNotifier menuState;
-  final DataNotifier categoryData;
-
   const QuadMenu({
     super.key,
-    required this.menuState,
-    required this.categoryData,
   });
 
   @override
@@ -245,7 +235,8 @@ class _QuadMenuState extends State<QuadMenu> {
   Widget build(BuildContext context) {
     final state = AppState.of(context)!;
     final DataNotifier dataNotifier = state.dataNotifier;
-    final view = AppState.of(context)?.menuNotifier.view;
+    final MenuNotifier menuState = state.menuNotifier;
+    final view = state.menuNotifier.view;
 
     return SizedBox(
         width: 200,
@@ -279,7 +270,7 @@ class _QuadMenuState extends State<QuadMenu> {
           Expanded(
             child: GestureDetector(
               onTap: () {
-                widget.menuState.toggleView();
+                menuState.toggleView();
                 if (view == AppView.map) {
                   showBottomSheet(
                     context: context,
@@ -288,23 +279,20 @@ class _QuadMenuState extends State<QuadMenu> {
                         heightFactor: 0.97,
                         child: SizedBox(
                           width: 400,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: AnimatedBuilder(
-                              animation: widget.menuState,
-                              builder: (context, child) {
-                                final data = widget.categoryData.current;
-                                return ArtistListView(data: data);
-                              },
-                            ),
+                          child: AnimatedBuilder(
+                            animation: menuState,
+                            builder: (context, child) {
+                              final data = state.current;
+                              return ArtistListView(data: data);
+                            },
                           ),
                         ),
                       );
                     },
-                  ).closed.then((value) => widget.menuState.toggleView());
+                  ).closed.then((value) => menuState.toggleView());
                 } else {
                   Navigator.pop(context);
-                  widget.menuState.toggleView();
+                  menuState.toggleView();
                 }
               },
               child: Container(
@@ -340,47 +328,51 @@ class ArtistProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      heightFactor: 0.97,
-      child: SizedBox(
-        width: 400,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: CloseButton(
-                  onPressed: () => Navigator.pop(context),
-                ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(border: Border.all()),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            artist['Image'] == null
+                ? Container(
+                    height: 250,
+                    width: double.infinity,
+                    color: Colors.grey[200],
+                    child: Icon(
+                      Icons.image,
+                      size: 50,
+                      color: Colors.grey[400],
+                    ),
+                  )
+                : SizedBox(
+                    height: 250,
+                    width: double.infinity,
+                    child: Image.network(
+                      artist['Image']!.url,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Chip(label: Text(artist['Genre'])),
+                const SizedBox(width: 16),
+                Chip(label: Text(artist['Type'])),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              artist['Name'],
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
-              Column(
-                children: [
-                  artist['Image'] == null
-                      ? Container(
-                          width: 200,
-                          height: 200,
-                          color: Colors.grey[200],
-                          child: Icon(
-                            Icons.image,
-                            size: 50,
-                            color: Colors.grey[400],
-                          ),
-                        )
-                      : SizedBox(
-                          height: 400,
-                          child: Image.network(
-                            artist['Image']!.url,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                  Text(artist['Name']),
-                  Text(artist['Genre']),
-                  Text(artist['Type']),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -401,53 +393,7 @@ class ArtistListView extends StatelessWidget {
       itemCount: data.length,
       itemBuilder: (context, index) {
         final item = data[index];
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(
-                item['image'],
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 200,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  item['headline'],
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  item['description'],
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Chip(
-                      label: Text(item['genre']),
-                      backgroundColor: Colors.blueAccent,
-                    ),
-                    const SizedBox(width: 8),
-                    Chip(
-                      label: Text(item['type']),
-                      backgroundColor: Colors.greenAccent,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
+        return ArtistProfile(artist: item);
       },
     );
   }

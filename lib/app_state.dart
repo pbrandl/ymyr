@@ -42,8 +42,7 @@ class AppState extends InheritedWidget {
   Category get category => dataNotifier.category;
   AppView get view => menuNotifier.view;
 
-  List<ParseObject> get events => dataNotifier.events;
-  List<ParseObject> get artists => dataNotifier.artists;
+  List<ParseObject> get current => dataNotifier.current;
 
   bool get mode => locationPickerNotifier.mode;
   set mode(bool b) => locationPickerNotifier.mode = b;
@@ -180,7 +179,7 @@ class DataNotifier extends ChangeNotifier {
   }
 
   Future<void> _initialize() async {
-    await Future.delayed(const Duration(seconds: 3));
+    // await Future.delayed(const Duration(seconds: 3));
     await Future.wait([
       fetchArtists(),
       fetchEvents(),

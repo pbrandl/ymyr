@@ -7,10 +7,42 @@ import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/main.dart';
 
-class OSMFlutterMap extends StatelessWidget {
-  OSMFlutterMap({super.key});
+class OSMFlutterMap extends StatefulWidget {
+  const OSMFlutterMap({super.key});
 
+  @override
+  State<OSMFlutterMap> createState() => _OSMFlutterMapState();
+}
+
+class _OSMFlutterMapState extends State<OSMFlutterMap> {
   final MapController mapController = MapController();
+
+  late List<ParseObject> data;
+  late LatLng initialCenter;
+  late LatLngBounds bounds;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final state = AppState.of(context)!;
+    state.locationPickerNotifier.addListener(update);
+    state.dataNotifier.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    final state = AppState.of(context);
+    if (state != null) {
+      state.locationPickerNotifier.removeListener(update);
+      state.dataNotifier.removeListener(update);
+    }
+    super.dispose();
+  }
+
+  void update() {
+    setState(() {});
+  }
 
   Marker drawMarker(ParseObject entry) {
     ParseGeoPoint point = entry['Coordinates'];
@@ -125,7 +157,23 @@ class CustomMarker extends StatelessWidget {
       onTap: () => showBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return ArtistProfile(artist: data);
+          return FractionallySizedBox(
+            heightFactor: 0.97,
+            child: SizedBox(
+              width: 400,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: CloseButton(
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                  ArtistProfile(artist: data)
+                ],
+              ),
+            ),
+          );
         },
       ),
       child: Icon(
