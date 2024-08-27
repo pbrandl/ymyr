@@ -150,12 +150,10 @@ class MapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = AppState.of(context)!;
     final DataNotifier dataNotifier = state.dataNotifier;
-    final LocationNotifier locationNotifier = state.locationPickerNotifier;
-    final MenuNotifier menuNotifier = state.menuNotifier;
 
     return Scaffold(
       body: Stack(clipBehavior: Clip.none, children: [
-        OSMFlutterMap(),
+        const OSMFlutterMap(),
         Positioned(
           left: 20,
           top: 20,
@@ -192,23 +190,15 @@ class MapScreen extends StatelessWidget {
             ],
           ),
         ),
-        if (locationNotifier.mode)
-          const Positioned(
-            right: 50,
-            left: 50,
-            bottom: 40,
-            child: AddMenu(),
-          ),
-        if (locationNotifier.mode)
-          const Positioned(
-            right: 50,
-            left: 50,
-            top: 90,
-            child: Center(child: Text("Wähle deine Location")),
-          ),
+        const Positioned(
+          right: 50,
+          left: 50,
+          top: 90,
+          child: Center(child: Text("Wähle deine Location")),
+        ),
         const SideBarNotch(),
       ]),
-      floatingActionButton: !locationNotifier.mode ? const QuadMenu() : null,
+      floatingActionButton: const QuadMenu(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -227,8 +217,26 @@ class _QuadMenuState extends State<QuadMenu> {
   late List<ParseObject> data = [];
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final state = AppState.of(context)!;
+    state.dataNotifier.addListener(update);
+    state.menuNotifier.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    final state = AppState.of(context);
+    if (state != null) {
+      state.dataNotifier.removeListener(update);
+      state.menuNotifier.removeListener(update);
+    }
+    super.dispose();
+  }
+
+  void update() {
+    setState(() {});
   }
 
   @override
@@ -262,7 +270,9 @@ class _QuadMenuState extends State<QuadMenu> {
                   ),
                 ),
                 child: Text(
-                  dataNotifier.category.toString(),
+                  dataNotifier.category != Category.event
+                      ? "Events"
+                      : "Artists",
                 ),
               ),
             ),
@@ -280,7 +290,7 @@ class _QuadMenuState extends State<QuadMenu> {
                         child: SizedBox(
                           width: 400,
                           child: AnimatedBuilder(
-                            animation: menuState,
+                            animation: dataNotifier,
                             builder: (context, child) {
                               final data = state.current;
                               return ArtistListView(data: data);
@@ -310,7 +320,7 @@ class _QuadMenuState extends State<QuadMenu> {
                 ),
                 height: 30,
                 alignment: Alignment.center,
-                child: Text(view.toString()),
+                child: Text(view != AppView.list ? "List" : "Map"),
               ),
             ),
           ),
@@ -395,65 +405,6 @@ class ArtistListView extends StatelessWidget {
         final item = data[index];
         return ArtistProfile(artist: item);
       },
-    );
-  }
-}
-
-class AddMenu extends StatefulWidget {
-  const AddMenu({super.key});
-
-  @override
-  State<AddMenu> createState() => _AddMenuState();
-}
-
-enum AddMenuOptions { cancel, next }
-
-class _AddMenuState extends State<AddMenu> {
-  final List<(AddMenuOptions, String)> shirtSizeOptions =
-      <(AddMenuOptions, String)>[
-    (AddMenuOptions.cancel, 'Abbrechen'),
-    (AddMenuOptions.next, 'Weiter'),
-  ];
-
-  Set<AddMenuOptions> _segmentedButtonSelection = <AddMenuOptions>{
-    AddMenuOptions.next
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SegmentedButton<AddMenuOptions>(
-            multiSelectionEnabled: true,
-            emptySelectionAllowed: true,
-            showSelectedIcon: false,
-            selected: _segmentedButtonSelection,
-            onSelectionChanged: (Set<AddMenuOptions> newSelection) {
-              setState(() {
-                _segmentedButtonSelection = newSelection;
-              });
-            },
-            segments: shirtSizeOptions.map<ButtonSegment<AddMenuOptions>>(
-                ((AddMenuOptions, String) option) {
-              return ButtonSegment<AddMenuOptions>(
-                value: option.$1,
-                label: Row(
-                  children: [
-                    const Icon(Icons.map),
-                    const SizedBox(width: 8),
-                    Text(option.$2),
-                  ],
-                ),
-              );
-            }).toList(),
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
