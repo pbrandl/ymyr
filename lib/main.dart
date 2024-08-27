@@ -63,40 +63,40 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'YMYR',
-      home: Scaffold(
-        body: _dataNotifier.artists.isEmpty
-            ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "YMYR",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+    return AppState(
+      locationPickerNotifier: _locationNotifier,
+      dataNotifier: _dataNotifier,
+      menuNotifier: _menuNotifier,
+      child: MaterialApp(
+        title: 'YMYR',
+        home: Scaffold(
+          body: _dataNotifier.artists.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "YMYR",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text(
-                      "Version 0.1",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: 16),
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text(
+                        "Version 0.1",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )
-            : AppState(
-                locationPickerNotifier: _locationNotifier,
-                dataNotifier: _dataNotifier,
-                menuNotifier: _menuNotifier,
-                child: const LocationSelection(),
-              ),
+                    ],
+                  ),
+                )
+              : const LocationSelection(),
+        ),
       ),
     );
   }

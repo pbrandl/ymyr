@@ -44,7 +44,7 @@ class DropdownState extends State<Dropdown> {
               selectedGenre = newValue;
             });
           },
-          underline: SizedBox(), // Removes the default underline
+          underline: const SizedBox(), // Removes the default underline
         ),
       ),
     );
