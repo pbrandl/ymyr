@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/dropdowns.dart';
 import 'package:ymyr/app_state.dart';
+import 'package:ymyr/location_selection.dart';
 import 'package:ymyr/map.dart';
 import 'package:ymyr/sidebar.dart';
 
@@ -64,7 +66,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return AppState(
-      locationPickerNotifier: _locationNotifier,
+      locationNotifier: _locationNotifier,
       dataNotifier: _dataNotifier,
       menuNotifier: _menuNotifier,
       child: MaterialApp(
@@ -102,47 +104,6 @@ class _HomeState extends State<Home> {
   }
 }
 
-class LocationSelection extends StatelessWidget {
-  const LocationSelection({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    void pushCityMap(City city) {
-      AppState.of(context)!.locationPickerNotifier.city = city;
-
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const MapScreen(),
-        ),
-      );
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text("Choose your city"),
-          const SizedBox(
-            height: 16,
-          ),
-          FilledButton(
-              onPressed: () => pushCityMap(City.stuttgart),
-              child: const Text("Stuttgart")),
-          const SizedBox(
-            height: 16,
-          ),
-          FilledButton(
-              onPressed: () => pushCityMap(City.freiburg),
-              child: const Text("Freiburg"))
-        ],
-      ),
-    );
-  }
-}
-
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
 
@@ -152,15 +113,25 @@ class MapScreen extends StatelessWidget {
     final DataNotifier dataNotifier = state.dataNotifier;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Artists in ${cityStringMap[state.city]!}".toUpperCase()),
+          ],
+        ),
+      ),
       body: Stack(clipBehavior: Clip.none, children: [
         const OSMFlutterMap(),
-        Positioned(
-          left: 20,
-          top: 20,
-          child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back)),
-        ),
+        // Custom Back Button
+        // Positioned(
+        //   left: 20,
+        //   top: 20,
+        //   child: IconButton(
+        //       onPressed: () => Navigator.pop(context),
+        //       icon: const Icon(Icons.arrow_back)),
+        // ),
         Positioned(
           top: 20,
           right: 50,
@@ -189,12 +160,6 @@ class MapScreen extends StatelessWidget {
               const FintaActionChip(),
             ],
           ),
-        ),
-        const Positioned(
-          right: 50,
-          left: 50,
-          top: 90,
-          child: Center(child: Text("Wähle deine Location")),
         ),
         const SideBarNotch(),
       ]),

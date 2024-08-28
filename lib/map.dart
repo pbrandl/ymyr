@@ -26,7 +26,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
     super.didChangeDependencies();
 
     final state = AppState.of(context)!;
-    state.locationPickerNotifier.addListener(update);
+    state.locationNotifier.addListener(update);
     state.dataNotifier.addListener(update);
   }
 
@@ -34,7 +34,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
   void dispose() {
     final state = AppState.of(context);
     if (state != null) {
-      state.locationPickerNotifier.removeListener(update);
+      state.locationNotifier.removeListener(update);
       state.dataNotifier.removeListener(update);
     }
     super.dispose();
@@ -64,7 +64,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
 
     void onPositionChanged(MapPosition position, bool hasGesture) {
       if (state.mode) {
-        state.locationPickerNotifier.setLocation(
+        state.locationNotifier.setLocation(
           position.center ?? initialCenter,
         );
       }

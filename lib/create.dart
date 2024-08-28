@@ -69,7 +69,7 @@ class _CreateState extends State<Create> {
   }
 
   Future<void> uploadArtistData() async {
-    LatLng? coord = AppState.of(context)!.locationPickerNotifier.center;
+    LatLng? coord = AppState.of(context)!.locationNotifier.center;
     ParseGeoPoint geoPoint =
         ParseGeoPoint(latitude: coord.latitude, longitude: coord.longitude);
 

@@ -34,7 +34,7 @@ enum Category { event, artist }
 enum AppView { list, map }
 
 class AppState extends InheritedWidget {
-  final LocationNotifier locationPickerNotifier;
+  final LocationNotifier locationNotifier;
   final DataNotifier dataNotifier;
   final MenuNotifier menuNotifier;
 
@@ -44,16 +44,19 @@ class AppState extends InheritedWidget {
 
   List<ParseObject> get current => dataNotifier.current;
 
-  bool get mode => locationPickerNotifier.mode;
-  set mode(bool b) => locationPickerNotifier.mode = b;
+  bool get mode => locationNotifier.mode;
+  set mode(bool b) => locationNotifier.mode = b;
 
-  LatLng get center => locationPickerNotifier.center;
-  LatLngBounds get bounds => locationPickerNotifier.bounds;
+  LatLng get center => locationNotifier.center;
+  LatLngBounds get bounds => locationNotifier.bounds;
+
+  City get city => locationNotifier.city;
+  set city(City c) => locationNotifier.city = c;
 
   const AppState({
     super.key,
     required super.child,
-    required this.locationPickerNotifier,
+    required this.locationNotifier,
     required this.dataNotifier,
     required this.menuNotifier,
   });
@@ -64,7 +67,7 @@ class AppState extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AppState oldWidget) {
-    return locationPickerNotifier != oldWidget.locationPickerNotifier ||
+    return locationNotifier != oldWidget.locationNotifier ||
         dataNotifier != oldWidget.dataNotifier;
   }
 }
@@ -80,6 +83,16 @@ final Map<City, (LatLng, LatLngBounds)> cityToCoord = {
     LatLng(47.9990, 7.8421),
     LatLngBounds(LatLng(47.9740, 7.8121), LatLng(48.0240, 7.8721))
   ),
+};
+
+final Map<City, String> cityStringMap = {
+  City.stuttgart: "Stuttgart",
+  City.freiburg: "Freiburg",
+};
+
+final Map<String, City> stringCityMap = {
+  "Stuttgart": City.stuttgart,
+  "Freiburg": City.freiburg
 };
 
 class LocationNotifier extends ChangeNotifier {
