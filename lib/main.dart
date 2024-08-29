@@ -5,7 +5,9 @@ import 'package:ymyr/dropdowns.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/location_selection.dart';
 import 'package:ymyr/map.dart';
+import 'package:ymyr/player.dart';
 import 'package:ymyr/sidebar.dart';
+import 'package:ymyr/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +72,7 @@ class _HomeState extends State<Home> {
       dataNotifier: _dataNotifier,
       menuNotifier: _menuNotifier,
       child: MaterialApp(
+        theme: CustomTheme.generateTheme(Color.fromARGB(255, 119, 106, 194)),
         title: 'YMYR',
         home: Scaffold(
           body: _dataNotifier.artists.isEmpty
@@ -113,6 +116,8 @@ class MapScreen extends StatelessWidget {
     final DataNotifier dataNotifier = state.dataNotifier;
 
     return Scaffold(
+      bottomNavigationBar:
+          SizedBox(height: 50, child: const AudioPlayerWidget()),
       appBar: AppBar(
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

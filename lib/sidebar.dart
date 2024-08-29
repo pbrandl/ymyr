@@ -70,23 +70,23 @@ class _SideBarNotchState extends State<SideBarNotch>
               GestureDetector(
                 onTap: onNotchTapped,
                 child: Container(
-                  width: 40,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColorLight,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
+                    width: 40,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColorLight,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: AnimatedIcon(
-                      icon: AnimatedIcons.menu_close,
-                      progress: _animationController.view,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
+                    child: Center(
+                      child: Transform.rotate(
+                        angle: -90 * (3.1415926535897932 / 180),
+                        child: const Text(
+                          "YMYR",
+                        ),
+                      ),
+                    )),
               ),
               Expanded(
                 child: Container(

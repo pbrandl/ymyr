@@ -72,7 +72,7 @@ class AppState extends InheritedWidget {
   }
 }
 
-enum City { freiburg, stuttgart }
+enum City { freiburg, stuttgart, hamburg, berlin, munich }
 
 final Map<City, (LatLng, LatLngBounds)> cityToCoord = {
   City.stuttgart: (
