@@ -29,12 +29,6 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
   @override
   void initState() {
     super.initState();
-
-    try {
-      _determinePosition();
-    } catch (e) {
-      rethrow;
-    }
   }
 
   @override
@@ -71,49 +65,6 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
     );
   }
 
-  /// Determine the current position of the device.
-  ///
-  /// When the location services are not enabled or permissions
-  /// are denied the `Future` will return an error.
-  Future _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission? permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    userPosition = await Geolocator.getCurrentPosition();
-    update();
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = AppState.of(context)!;
@@ -128,20 +79,20 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
         );
       }
 
-      // if (!bounds.contains(position.center!)) {
-      //   debugPrint(position.center.toString());
+      if (!bounds.contains(position.center!)) {
+        debugPrint(position.center.toString());
 
-      //   final newCenter = LatLng(
-      //     position.center!.latitude
-      //         .clamp(bounds.southWest.latitude, bounds.northEast.latitude),
-      //     position.center!.longitude
-      //         .clamp(bounds.southWest.longitude, bounds.northEast.longitude),
-      //   );
+        final newCenter = LatLng(
+          position.center!.latitude
+              .clamp(bounds.southWest.latitude, bounds.northEast.latitude),
+          position.center!.longitude
+              .clamp(bounds.southWest.longitude, bounds.northEast.longitude),
+        );
 
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     mapController.move(newCenter, position.zoom!);
-      //   });
-      // }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          mapController.move(newCenter, position.zoom!);
+        });
+      }
     }
 
     return Stack(
@@ -162,20 +113,20 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
                   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
               subdomains: const ['a', 'b', 'c', 'd'],
             ),
-            if (userPosition != null)
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    width: 60.0,
-                    height: 60.0,
-                    point: LatLng(
-                      userPosition!.latitude,
-                      userPosition!.longitude,
-                    ),
-                    builder: (context) => const UserPositionMarker(),
-                  ),
-                ],
-              ),
+            // if (userPosition != null)
+            //   MarkerLayer(
+            //     markers: [
+            //       Marker(
+            //         width: 60.0,
+            //         height: 60.0,
+            //         point: LatLng(
+            //           userPosition!.latitude,
+            //           userPosition!.longitude,
+            //         ),
+            //         builder: (context) => const UserPositionMarker(),
+            //       ),
+            //     ],
+            //   ),
             if (!state.mode)
               MarkerClusterLayerWidget(
                 options: MarkerClusterLayerOptions(
@@ -216,45 +167,45 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
   }
 }
 
-class UserPositionMarker extends StatelessWidget {
-  const UserPositionMarker({
-    super.key,
-  });
+// class UserPositionMarker extends StatelessWidget {
+//   const UserPositionMarker({
+//     super.key,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Outer lighter circle with shadow
-        Container(
-          width: 25.0,
-          height: 25.0,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.blueAccent.withOpacity(0.3),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-        ),
-        // Inner blue dot
-        Container(
-          width: 15.0,
-          height: 15.0,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.blue,
-          ),
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       alignment: Alignment.center,
+//       children: [
+//         // Outer lighter circle with shadow
+//         Container(
+//           width: 25.0,
+//           height: 25.0,
+//           decoration: BoxDecoration(
+//             shape: BoxShape.circle,
+//             color: Colors.blueAccent.withOpacity(0.3),
+//             boxShadow: const [
+//               BoxShadow(
+//                 color: Colors.black26,
+//                 blurRadius: 8,
+//                 offset: Offset(0, 4),
+//               ),
+//             ],
+//           ),
+//         ),
+//         // Inner blue dot
+//         Container(
+//           width: 15.0,
+//           height: 15.0,
+//           decoration: const BoxDecoration(
+//             shape: BoxShape.circle,
+//             color: Colors.blue,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 class CustomMarker extends StatelessWidget {
   final ParseObject data;
