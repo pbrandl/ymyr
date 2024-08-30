@@ -74,7 +74,7 @@ class _SideBarNotchState extends State<SideBarNotch>
                     width: 40,
                     height: 110,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColorLight,
+                      color: Theme.of(context).cardColor,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
                         bottomLeft: Radius.circular(20),
@@ -91,7 +91,7 @@ class _SideBarNotchState extends State<SideBarNotch>
               ),
               Expanded(
                 child: Container(
-                  color: Theme.of(context).canvasColor,
+                  color: Theme.of(context).cardColor,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

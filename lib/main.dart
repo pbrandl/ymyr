@@ -137,8 +137,9 @@ class _MapScreenState extends State<MapScreen> {
     final DataNotifier dataNotifier = state.dataNotifier;
 
     return Scaffold(
-      bottomNavigationBar: SizedBox(
+      bottomNavigationBar: Container(
           height: 50,
+          color: Theme.of(context).canvasColor,
           child: AudioPlayerWidget(
             player: _audioPlayer,
           )),
@@ -150,8 +151,6 @@ class _MapScreenState extends State<MapScreen> {
             },
             icon: const Icon(Icons.arrow_back)),
         title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
               "ARTISTS IN",
@@ -188,13 +187,13 @@ class _MapScreenState extends State<MapScreen> {
                 items: ['All'] + genreStringMap.values.toList(),
                 onChanged: (genre) => dataNotifier.genre = genre,
               ),
-              const SizedBox(width: 32),
+              const SizedBox(width: 24),
               Picker(
                 defaultText: 'Type',
                 items: ['All'] + typeStringMap.values.toList(),
                 onChanged: (type) => dataNotifier.type = type,
               ),
-              const SizedBox(width: 32),
+              const SizedBox(width: 24),
               const FintaActionChip(),
             ],
           ),

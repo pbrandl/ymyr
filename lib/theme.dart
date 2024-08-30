@@ -5,9 +5,19 @@ class CustomTheme {
     return ThemeData(
       brightness: Brightness.light, // Base the theme on a dark theme
       primaryColor: seedColor, // Use the seed color as the primary color
+      canvasColor: Color.fromARGB(255, 194, 186, 231),
+      cardColor: Color.fromARGB(255, 241, 158, 220),
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,
         brightness: Brightness.light, // Ensure the color scheme is dark
+      ),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: Color.fromARGB(255, 194, 186, 231),
+      ),
+
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Color.fromARGB(255, 194, 186, 231),
       ),
 
       // High contrast text styles
