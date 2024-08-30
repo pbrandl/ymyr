@@ -14,7 +14,7 @@ class LocationSelection extends StatelessWidget {
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const MapScreen(),
+          builder: (context) => MapScreen(),
         ),
       );
     }

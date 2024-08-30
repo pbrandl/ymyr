@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -5,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
+import 'package:ymyr/artist_profile.dart';
 import 'package:ymyr/main.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -265,24 +267,20 @@ class CustomMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => showBottomSheet(
+      onTap: () => showDialog(
         context: context,
         builder: (BuildContext context) {
-          return FractionallySizedBox(
-            heightFactor: 0.97,
-            child: SizedBox(
-              width: 400,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: CloseButton(
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  ArtistProfile(artist: data)
-                ],
-              ),
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
+            contentPadding: EdgeInsets.zero,
+            content: Column(
+              mainAxisSize:
+                  MainAxisSize.min, // Ensures the height is based on content
+              children: [
+                ArtistProfile(artist: data),
+              ],
             ),
           );
         },

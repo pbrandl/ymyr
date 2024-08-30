@@ -1,7 +1,9 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:ymyr/dropdowns.dart';
+import 'package:ymyr/artist_profile.dart';
+import 'package:ymyr/picker.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/location_selection.dart';
 import 'package:ymyr/map.dart';
@@ -107,8 +109,27 @@ class _HomeState extends State<Home> {
   }
 }
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void stopAudioPlayer() async {
+    if (mounted) {
+      await _audioPlayer.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,27 +137,45 @@ class MapScreen extends StatelessWidget {
     final DataNotifier dataNotifier = state.dataNotifier;
 
     return Scaffold(
-      bottomNavigationBar:
-          SizedBox(height: 50, child: const AudioPlayerWidget()),
+      bottomNavigationBar: SizedBox(
+          height: 50,
+          child: AudioPlayerWidget(
+            player: _audioPlayer,
+          )),
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              stopAudioPlayer();
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back)),
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Artists in ${cityStringMap[state.city]!}".toUpperCase()),
+            const Text(
+              "ARTISTS IN",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () async {
+                await _audioPlayer.dispose();
+                Navigator.pop(context);
+              },
+              child: Text(
+                cityStringMap[state.city]!.toUpperCase(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
           ],
         ),
       ),
       body: Stack(clipBehavior: Clip.none, children: [
         const OSMFlutterMap(),
-        // Custom Back Button
-        // Positioned(
-        //   left: 20,
-        //   top: 20,
-        //   child: IconButton(
-        //       onPressed: () => Navigator.pop(context),
-        //       icon: const Icon(Icons.arrow_back)),
-        // ),
         Positioned(
           top: 20,
           right: 50,
@@ -144,32 +183,35 @@ class MapScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                  color: Theme.of(context).primaryColorLight,
-                  width: 60,
-                  child: Picker(
-                    defaultText: 'Genre',
-                    items: ['All'] + genreStringMap.values.toList(),
-                    onChanged: (genre) => dataNotifier.genre = genre,
-                  )),
+              Picker(
+                defaultText: 'Genre',
+                items: ['All'] + genreStringMap.values.toList(),
+                onChanged: (genre) => dataNotifier.genre = genre,
+              ),
               const SizedBox(width: 32),
-              Container(
-                  color: Theme.of(context).primaryColorLight,
-                  width: 60,
-                  child: Picker(
-                    defaultText: 'Type',
-                    items: ['All'] + typeStringMap.values.toList(),
-                    onChanged: (type) => dataNotifier.type = type,
-                  )),
+              Picker(
+                defaultText: 'Type',
+                items: ['All'] + typeStringMap.values.toList(),
+                onChanged: (type) => dataNotifier.type = type,
+              ),
               const SizedBox(width: 32),
               const FintaActionChip(),
             ],
           ),
         ),
+        const Positioned(
+          bottom: 20,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: SizedBox(
+              width: 200,
+              child: QuadMenu(),
+            ),
+          ),
+        ),
         const SideBarNotch(),
       ]),
-      floatingActionButton: const QuadMenu(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -232,17 +274,31 @@ class _QuadMenuState extends State<QuadMenu> {
                 height: 30,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Colors.white,
                   border: Border.all(),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(15.0),
                     bottomLeft: Radius.circular(15.0),
                   ),
                 ),
-                child: Text(
-                  dataNotifier.category != Category.event
-                      ? "Events"
-                      : "Artists",
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      dataNotifier.category == Category.event
+                          ? Icons.supervisor_account
+                          : Icons.calendar_month,
+                      size: 16,
+                    ),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      dataNotifier.category != Category.event
+                          ? "Events"
+                          : "Artists",
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -276,86 +332,37 @@ class _QuadMenuState extends State<QuadMenu> {
                 }
               },
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  border: const Border(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
                     top: BorderSide(color: Colors.black),
                     bottom: BorderSide(color: Colors.black),
                     right: BorderSide(color: Colors.black),
                   ),
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     bottomRight: Radius.circular(15.0),
                     topRight: Radius.circular(15.0),
                   ),
                 ),
                 height: 30,
                 alignment: Alignment.center,
-                child: Text(view != AppView.list ? "List" : "Map"),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      view != AppView.list ? Icons.list : Icons.map,
+                      size: 16,
+                    ),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    Text(view != AppView.list ? "List" : "Map")
+                  ],
+                ),
               ),
             ),
           ),
         ]));
-  }
-}
-
-class ArtistProfile extends StatelessWidget {
-  final ParseObject artist;
-
-  const ArtistProfile({
-    super.key,
-    required this.artist,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(border: Border.all()),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            artist['Image'] == null
-                ? Container(
-                    height: 250,
-                    width: double.infinity,
-                    color: Colors.grey[200],
-                    child: Icon(
-                      Icons.image,
-                      size: 50,
-                      color: Colors.grey[400],
-                    ),
-                  )
-                : SizedBox(
-                    height: 250,
-                    width: double.infinity,
-                    child: Image.network(
-                      artist['Image']!.url,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Chip(label: Text(artist['Genre'])),
-                const SizedBox(width: 16),
-                Chip(label: Text(artist['Type'])),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              artist['Name'],
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -392,14 +399,50 @@ class _FintaActionChipState extends State<FintaActionChip> {
   @override
   Widget build(BuildContext context) {
     return ActionChip(
-      avatar: Icon(toggle ? Icons.check : Icons.radio_button_unchecked),
-      label: const Text('Finta'),
+      clipBehavior: Clip.antiAlias,
+      labelPadding: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
       onPressed: () {
         setState(() {
           toggle = !toggle;
         });
         AppState.of(context)!.dataNotifier.finta = toggle;
       },
+      label: Container(
+        width: 76,
+        height: 38,
+        decoration: BoxDecoration(
+          gradient: !toggle
+              ? null
+              : const LinearGradient(
+                  colors: [
+                    Colors.red,
+                    Colors.orange,
+                    Colors.yellow,
+                    Colors.green,
+                    Colors.blue,
+                    Colors.purple,
+                  ],
+                  stops: [
+                    0.16, // End of the first color and start of the second
+                    0.33, // End of the second color and start of the third
+                    0.5, // End of the third color and start of the fourth
+                    0.66, // End of the fourth color and start of the fifth
+                    0.83, // End of the fifth color and start of the sixth
+                    1.0, // End of the sixth color
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+        ),
+        child: const Center(
+          child: Text(
+            'Finta',
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 16, color: Colors.black),
+          ),
+        ),
+      ),
     );
   }
 }

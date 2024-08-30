@@ -21,6 +21,8 @@ class _CreateState extends State<Create> {
   final PageController _pageController = PageController();
 
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _streamLinkController = TextEditingController();
+
   List<String> genres = genreStringMap.values.toList();
   List<String> types = typeStringMap.values.toList();
   int selectedGenre = 0;
@@ -36,7 +38,6 @@ class _CreateState extends State<Create> {
         curve: Curves.easeIn,
       );
 
-      debugPrint(_pageController.page?.toInt().toString());
       if (_pageController.page?.toInt() == 3) {
         AppState.of(context)!.mode = true;
       }
@@ -125,8 +126,15 @@ class _CreateState extends State<Create> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          NameInput(
+          TextInput(
+            labelText: "What's your name?",
             nameController: _nameController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
+          TextInput(
+            labelText: "Link to Stream",
+            nameController: _streamLinkController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
@@ -159,7 +167,7 @@ class _CreateState extends State<Create> {
           ),
           Stack(
             children: [
-              OSMFlutterMap(),
+              const OSMFlutterMap(),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -195,23 +203,25 @@ class _CreateState extends State<Create> {
   }
 }
 
-class NameInput extends StatefulWidget {
+class TextInput extends StatefulWidget {
+  final String labelText;
   final TextEditingController nameController;
   final VoidCallback goToPreviousPage;
   final VoidCallback goToNextPage;
 
-  const NameInput({
+  const TextInput({
     super.key,
+    required this.labelText,
     required this.nameController,
     required this.goToNextPage,
     required this.goToPreviousPage,
   });
 
   @override
-  State<NameInput> createState() => _NameInputState();
+  State<TextInput> createState() => _TextInputState();
 }
 
-class _NameInputState extends State<NameInput> {
+class _TextInputState extends State<TextInput> {
   late FocusNode _focusNode;
 
   @override
@@ -251,7 +261,7 @@ class _NameInputState extends State<NameInput> {
             focusNode: _focusNode,
             autofocus: true,
             decoration: InputDecoration(
-              labelText: "What's your name?",
+              labelText: widget.labelText,
               labelStyle: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.bold),

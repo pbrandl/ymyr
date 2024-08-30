@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:ymyr/create.dart';
+import 'package:ymyr/waitlist.dart';
 
 class SideBarNotch extends StatefulWidget {
   const SideBarNotch({super.key});
@@ -112,15 +113,72 @@ class _SideBarNotchState extends State<SideBarNotch>
                       const SizedBox(height: 16),
                       FilledButton(
                         onPressed: () => {
-                          showAboutDialog(
-                              applicationIcon: const Icon(Icons.yard),
-                              applicationName: "YMYR",
-                              applicationVersion: "0.1",
-                              children: [
-                                const Text(
-                                    "YMYR TextLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.")
-                              ],
-                              context: context)
+                          showDialog<void>(
+                            context: context,
+                            barrierDismissible: false, // user must tap button!
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Center(
+                                    child: Text('YMYR',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineLarge)),
+                                content: const SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'YMYR is localized music discovery network.'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'Its mission is to make local music culture visible by giving unique overview of local artists, collectives and events that are shaping your neighborhoods music scene.'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'In this stage we are focused on representing the Freiburg Music Scene with plans to expand further in BW, Germany and the globe.'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'By offering an alternative to algorithmic music discovery, we hope to help local emerging artist gain more visibility and livening up local music scenes.'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'If you are intersted in what is next for YMYR and want to support us by testing new versions of our service, please sign up to the waitlist by leaving your email.'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'We will contact you as soon as there is a new version to explore.'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                          textAlign: TextAlign.center,
+                                          'Cheers!')
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  FilledButton(
+                                    child: const Text('Waitlist'),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const Waitlist(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  FilledButton(
+                                    child: const Text('Close'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          )
                         },
                         child: const Text("About"),
                       ),
