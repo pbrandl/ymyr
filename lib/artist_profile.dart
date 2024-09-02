@@ -14,19 +14,23 @@ class ArtistProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.zero,
-      child: SizedBox(
-        width: 400,
+      child: Container(
+        color: Colors.white,
+        width: 300,
         child: Stack(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    artist['Image'] == null
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CupertinoChip(label: artist['City'], color: Colors.yellow),
+                  Container(
+                    decoration: BoxDecoration(border: Border.all()),
+                    child: artist['Image'] == null
                         ? Container(
-                            height: 250,
+                            height: 200,
                             width: double.infinity,
                             color: Colors.grey[200],
                             child: Icon(
@@ -36,67 +40,61 @@ class ArtistProfile extends StatelessWidget {
                             ),
                           )
                         : SizedBox(
-                            height: 250,
+                            height: 200,
                             width: double.infinity,
                             child: Image.network(
                               artist['Image']!.url,
                               fit: BoxFit.cover,
                             ),
                           ),
-                    Positioned(
-                      left: 10,
-                      bottom: 10,
-                      child: Stack(
-                        children: [
-                          Text(
-                            artist['Name'],
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              foreground: Paint()
-                                ..style = PaintingStyle.stroke
-                                ..strokeWidth = 1
-                                ..color = Colors.black,
-                            ),
-                          ),
-                          Text(
-                            artist['Name'],
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
+                  ),
+                  Row(
                     children: [
-                      CupertinoChip(label: artist['Genre']),
+                      CupertinoChip(
+                        label: artist['Genre'],
+                        color: Colors.lightBlue,
+                      ),
                       const SizedBox(width: 16),
                       CupertinoChip(label: artist['Type']),
                     ],
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-            Positioned(
-              right: 10,
-              top: 10,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                ),
-                onPressed: () => Navigator.of(context).pop(),
+                  const SizedBox(height: 4),
+                  Text(
+                    artist['Name'],
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    artist['Description'],
+                  ),
+                ],
               ),
             ),
+            Positioned(
+                right: 20,
+                top: 65,
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    iconSize: 20,
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                )),
           ],
         ),
       ),
@@ -107,11 +105,13 @@ class ArtistProfile extends StatelessWidget {
 class CupertinoChip extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
+  final Color? color;
 
   const CupertinoChip({
     super.key,
     required this.label,
     this.onPressed,
+    this.color,
   });
 
   @override
@@ -120,16 +120,18 @@ class CupertinoChip extends StatelessWidget {
       padding: EdgeInsets.zero,
       onPressed: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         decoration: BoxDecoration(
-          color: CupertinoColors.inactiveGray,
-          borderRadius: BorderRadius.circular(20),
-        ),
+            color: color,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all()),
         child: Text(
           label,
           style: const TextStyle(
             color: CupertinoColors.black,
-            fontSize: 16,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.05,
           ),
         ),
       ),

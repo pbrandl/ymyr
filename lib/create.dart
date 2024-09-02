@@ -21,6 +21,9 @@ class _CreateState extends State<Create> {
   final PageController _pageController = PageController();
 
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+
+  final TextEditingController _cityController = TextEditingController();
   final TextEditingController _streamLinkController = TextEditingController();
 
   List<String> genres = genreStringMap.values.toList();
@@ -76,6 +79,9 @@ class _CreateState extends State<Create> {
 
     final artist = ParseObject('Artists')
       ..set('Name', _nameController.text)
+      ..set('Link', _streamLinkController.text)
+      ..set('City', _cityController.text)
+      ..set('Description', _descController.text)
       ..set('Genre', genres[selectedGenre])
       ..set('Type', types[selectedType])
       ..set('Coordinates', geoPoint)
@@ -132,9 +138,21 @@ class _CreateState extends State<Create> {
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
+          DescriptionInput(
+            labelText: "Description",
+            nameController: _descController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
           TextInput(
             labelText: "Link to Stream",
             nameController: _streamLinkController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
+          TextInput(
+            labelText: "Where are you based?",
+            nameController: _cityController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
@@ -528,6 +546,105 @@ class SuccessScreenState extends State<SuccessScreen> {
           style: const TextStyle(fontSize: 24.0, color: Colors.white),
           textAlign: TextAlign.center,
         ),
+      ),
+    );
+  }
+}
+
+class DescriptionInput extends StatefulWidget {
+  final String labelText;
+  final TextEditingController nameController;
+  final VoidCallback goToPreviousPage;
+  final VoidCallback goToNextPage;
+
+  const DescriptionInput({
+    super.key,
+    required this.labelText,
+    required this.nameController,
+    required this.goToNextPage,
+    required this.goToPreviousPage,
+  });
+
+  @override
+  State<DescriptionInput> createState() => _DescriptionInputState();
+}
+
+class _DescriptionInputState extends State<DescriptionInput> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _focusNode = FocusNode();
+
+    widget.nameController.addListener(_updateState);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    widget.nameController.removeListener(_updateState);
+    super.dispose();
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(height: 32),
+          TextField(
+            minLines: 4,
+            maxLines: 4,
+            maxLength: 140,
+            controller: widget.nameController,
+            focusNode: _focusNode,
+            autofocus: true,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+                labelText: widget.labelText,
+                labelStyle: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold),
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                border: OutlineInputBorder()),
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                widget.goToNextPage();
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FilledButton.icon(
+                onPressed: widget.goToPreviousPage,
+                icon: const Icon(Icons.arrow_back),
+                label: const Text("Back"),
+              ),
+              FilledButton.icon(
+                onPressed: widget.nameController.text.isNotEmpty
+                    ? widget.goToNextPage
+                    : null,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text("Next"),
+                iconAlignment: IconAlignment.end,
+              ),
+            ],
+          )
+        ],
       ),
     );
   }
