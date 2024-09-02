@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/artist_profile.dart';
 import 'package:ymyr/list_screen.dart';
+import 'package:ymyr/nav_menu.dart';
 import 'package:ymyr/picker.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/location_selection.dart';
@@ -206,151 +207,15 @@ class _MapScreenState extends State<MapScreen> {
           child: Center(
             child: SizedBox(
               width: 200,
-              child: QuadMenu(),
+              child: NavMenu(
+                appview: AppView.map,
+              ),
             ),
           ),
         ),
         const SideBarNotch(),
       ]),
     );
-  }
-}
-
-class QuadMenu extends StatefulWidget {
-  const QuadMenu({
-    super.key,
-  });
-
-  @override
-  State<QuadMenu> createState() => _QuadMenuState();
-}
-
-class _QuadMenuState extends State<QuadMenu> {
-  late List<ParseObject> data = [];
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final state = AppState.of(context)!;
-    state.dataNotifier.addListener(update);
-    state.menuNotifier.addListener(update);
-  }
-
-  @override
-  void dispose() {
-    final state = AppState.of(context);
-    if (state != null) {
-      state.dataNotifier.removeListener(update);
-      state.menuNotifier.removeListener(update);
-    }
-    super.dispose();
-  }
-
-  void update() {
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = AppState.of(context)!;
-    final DataNotifier dataNotifier = state.dataNotifier;
-    final MenuNotifier menuState = state.menuNotifier;
-    final view = state.menuNotifier.view;
-
-    return SizedBox(
-        width: 200,
-        child: Row(children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                if (state.dataNotifier.category == Category.event) {
-                  state.dataNotifier.category = Category.artist;
-                } else {
-                  state.dataNotifier.category = Category.event;
-                }
-              },
-              child: Container(
-                height: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(15.0),
-                    bottomLeft: Radius.circular(15.0),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      dataNotifier.category == Category.event
-                          ? Icons.supervisor_account
-                          : Icons.calendar_month,
-                      size: 16,
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Text(
-                      dataNotifier.category != Category.event
-                          ? "Events"
-                          : "Artists",
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                menuState.toggleView();
-                if (view == AppView.map) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ListScreen(data: state.current),
-                    ),
-                  );
-                } else {
-                  Navigator.pop(context);
-                  menuState.toggleView();
-                }
-              },
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    top: BorderSide(color: Colors.black),
-                    bottom: BorderSide(color: Colors.black),
-                    right: BorderSide(color: Colors.black),
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(15.0),
-                    topRight: Radius.circular(15.0),
-                  ),
-                ),
-                height: 30,
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      view != AppView.list ? Icons.list : Icons.map,
-                      size: 16,
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Text(view != AppView.list ? "List" : "Map")
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ]));
   }
 }
 

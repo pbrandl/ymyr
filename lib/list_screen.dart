@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
+import 'package:ymyr/nav_menu.dart';
 
 class ListScreen extends StatelessWidget {
   final List<ParseObject> data;
@@ -42,17 +43,37 @@ class ListScreen extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 450.0,
-          ),
-          child: ListView.builder(
-            itemCount: data.length,
-            itemBuilder: (context, index) {
-              final item = data[index];
-              return ArtistProfile(artist: item);
-            },
-          ),
+        child: Stack(
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 340.0,
+              ),
+              child: ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  final item = data[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ArtistProfile(artist: item),
+                  );
+                },
+              ),
+            ),
+            const Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: SizedBox(
+                  width: 200,
+                  child: NavMenu(
+                    appview: AppView.list,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

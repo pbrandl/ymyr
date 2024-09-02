@@ -15,8 +15,11 @@ class ArtistProfile extends StatelessWidget {
     return SingleChildScrollView(
       padding: EdgeInsets.zero,
       child: Container(
-        color: Colors.white,
         width: 300,
+        decoration: BoxDecoration(
+          border: Border.all(),
+          color: Colors.white,
+        ),
         child: Stack(
           children: [
             Padding(
