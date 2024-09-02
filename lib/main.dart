@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/artist_profile.dart';
+import 'package:ymyr/list_screen.dart';
 import 'package:ymyr/picker.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/location_selection.dart';
@@ -307,24 +308,12 @@ class _QuadMenuState extends State<QuadMenu> {
               onTap: () {
                 menuState.toggleView();
                 if (view == AppView.map) {
-                  showBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return FractionallySizedBox(
-                        heightFactor: 0.97,
-                        child: SizedBox(
-                          width: 400,
-                          child: AnimatedBuilder(
-                            animation: dataNotifier,
-                            builder: (context, child) {
-                              final data = state.current;
-                              return ArtistListView(data: data);
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ).closed.then((value) => menuState.toggleView());
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ListScreen(data: state.current),
+                    ),
+                  );
                 } else {
                   Navigator.pop(context);
                   menuState.toggleView();
@@ -362,26 +351,6 @@ class _QuadMenuState extends State<QuadMenu> {
             ),
           ),
         ]));
-  }
-}
-
-class ArtistListView extends StatelessWidget {
-  final List<ParseObject> data;
-
-  const ArtistListView({
-    super.key,
-    required this.data,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: data.length,
-      itemBuilder: (context, index) {
-        final item = data[index];
-        return ArtistProfile(artist: item);
-      },
-    );
   }
 }
 
