@@ -36,7 +36,7 @@ class LocationSelection extends StatelessWidget {
                 onTap: () => pushCityMap(City.freiburg),
                 child: const CityBox(
                   name: 'Freiburg',
-                  imagePath: 'images/freiburg.webp',
+                  imagePath: 'assets/images/freiburg.webp',
                 )),
             const SizedBox(
               height: 16,
@@ -45,14 +45,14 @@ class LocationSelection extends StatelessWidget {
                 onTap: () => pushCityMap(City.stuttgart),
                 child: const CityBox(
                   name: 'Stuttgart',
-                  imagePath: 'images/stuttgart.jpg',
+                  imagePath: 'assets/images/stuttgart.jpg',
                 )),
             const SizedBox(
               height: 16,
             ),
             const CityBox(
               name: 'Hamburg',
-              imagePath: 'images/hamburg.jpg',
+              imagePath: 'assets/images/hamburg.jpg',
               isGrey: true,
             ),
             const SizedBox(
@@ -60,7 +60,7 @@ class LocationSelection extends StatelessWidget {
             ),
             const CityBox(
               name: 'Berlin',
-              imagePath: 'images/berlin.jpg',
+              imagePath: 'assets/images/berlin.jpg',
               isGrey: true,
             ),
             const SizedBox(
@@ -68,7 +68,7 @@ class LocationSelection extends StatelessWidget {
             ),
             const CityBox(
               name: 'München',
-              imagePath: 'images/munich.jpg',
+              imagePath: 'assets/images/munich.jpg',
               isGrey: true,
             )
           ],
