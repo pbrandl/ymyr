@@ -155,7 +155,7 @@ class CupertinoChip extends StatelessWidget {
 }
 
 class OpenUrlWidget extends StatelessWidget {
-  final String url;
+  final String? url;
   final String label;
 
   const OpenUrlWidget({
@@ -165,7 +165,7 @@ class OpenUrlWidget extends StatelessWidget {
   });
 
   Future<void> _launchUrl() async {
-    final Uri uri = Uri.parse(url);
+    final Uri uri = Uri.parse(url!);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
@@ -176,10 +176,12 @@ class OpenUrlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _launchUrl,
-      child: Text(
-        label,
-      ),
+      onTap: url != null ? _launchUrl : null,
+      child: url == null
+          ? const Text("No Link")
+          : Text(
+              label,
+            ),
     );
   }
 }
