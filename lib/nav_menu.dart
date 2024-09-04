@@ -47,7 +47,7 @@ class _NavMenuState extends State<NavMenu> {
     final DataNotifier dataNotifier = state.dataNotifier;
 
     return SizedBox(
-        width: 200,
+        width: 240,
         child: Row(children: [
           Expanded(
             child: GestureDetector(
@@ -59,7 +59,7 @@ class _NavMenuState extends State<NavMenu> {
                 }
               },
               child: Container(
-                height: 30,
+                height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -85,6 +85,7 @@ class _NavMenuState extends State<NavMenu> {
                       dataNotifier.category != Category.event
                           ? "Events"
                           : "Artists",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -118,7 +119,7 @@ class _NavMenuState extends State<NavMenu> {
                     topRight: Radius.circular(15.0),
                   ),
                 ),
-                height: 30,
+                height: 40,
                 alignment: Alignment.center,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +131,10 @@ class _NavMenuState extends State<NavMenu> {
                     const SizedBox(
                       width: 8,
                     ),
-                    Text(widget.appview != AppView.list ? "List" : "Map")
+                    Text(
+                      widget.appview != AppView.list ? "List" : "Map",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    )
                   ],
                 ),
               ),

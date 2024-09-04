@@ -81,7 +81,10 @@ final Map<City, (LatLng, LatLngBounds)> cityToCoord = {
   ),
   City.freiburg: (
     LatLng(47.9990, 7.8421),
-    LatLngBounds(LatLng(47.9740, 7.8121), LatLng(48.0240, 7.8721))
+    LatLngBounds(
+      LatLng(47.9604, 7.6786), // Bottom-left corner (southwest)
+      LatLng(48.1004, 7.9802), // Top-right corner (northeast)
+    ),
   ),
 };
 
@@ -202,7 +205,8 @@ class DataNotifier extends ChangeNotifier {
 
   Future<void> fetchArtists() async {
     final QueryBuilder<ParseObject> queryArtists =
-        QueryBuilder<ParseObject>(ParseObject('Artists'));
+        QueryBuilder<ParseObject>(ParseObject('Artists'))
+          ..whereEqualTo('Approved', true);
 
     final ParseResponse response = await queryArtists.query();
 
@@ -217,7 +221,8 @@ class DataNotifier extends ChangeNotifier {
   // Fetch all data from the 'Events' table
   Future<void> fetchEvents() async {
     final QueryBuilder<ParseObject> queryEvents =
-        QueryBuilder<ParseObject>(ParseObject('Events'));
+        QueryBuilder<ParseObject>(ParseObject('Events'))
+          ..whereEqualTo('Approved', true);
 
     final ParseResponse response = await queryEvents.query();
 

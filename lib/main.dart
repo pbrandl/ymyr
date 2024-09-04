@@ -2,8 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:ymyr/artist_profile.dart';
-import 'package:ymyr/list_screen.dart';
+import 'package:text_scroll/text_scroll.dart';
 import 'package:ymyr/nav_menu.dart';
 import 'package:ymyr/picker.dart';
 import 'package:ymyr/app_state.dart';
@@ -128,7 +127,20 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    AppState.of(context)!.dataNotifier.addListener(_updateState);
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+  @override
   void dispose() {
+    AppState.of(context)!.dataNotifier.removeListener(_updateState);
+
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -142,8 +154,21 @@ class _MapScreenState extends State<MapScreen> {
       bottomNavigationBar: Container(
           height: 50,
           color: Theme.of(context).canvasColor,
-          child: AudioPlayerWidget(
-            player: _audioPlayer,
+          child: Row(
+            children: [
+              AudioPlayerWidget(
+                player: _audioPlayer,
+              ),
+              const Expanded(
+                child: TextScroll(
+                  "RADIO SHOW <NAME> If this text is to long to be shown in just one line, it moves from right to left.",
+                  velocity: Velocity(
+                    pixelsPerSecond: Offset(40, 0),
+                  ),
+                  intervalSpaces: 50,
+                ),
+              )
+            ],
           )),
       appBar: AppBar(
         leading: IconButton(
@@ -154,9 +179,11 @@ class _MapScreenState extends State<MapScreen> {
             icon: const Icon(Icons.arrow_back)),
         title: Row(
           children: [
-            const Text(
-              "ARTISTS IN",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              AppState.of(context)!.dataNotifier.category == Category.event
+                  ? "EVENTS IN"
+                  : "ARTISTS IN",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               width: 8,
@@ -243,7 +270,7 @@ class _FintaActionChipState extends State<FintaActionChip> {
       },
       label: Container(
         width: 76,
-        height: 38,
+        height: 36,
         decoration: BoxDecoration(
           gradient: !toggle
               ? null
@@ -272,10 +299,76 @@ class _FintaActionChipState extends State<FintaActionChip> {
           child: Text(
             'Finta',
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 16, color: Colors.black),
+            style: TextStyle(fontSize: 14, color: Colors.black),
           ),
         ),
       ),
     );
+  }
+}
+
+class MarqueeWidget extends StatefulWidget {
+  final Widget child;
+  final Axis direction;
+  final Duration animationDuration, backDuration, pauseDuration;
+
+  const MarqueeWidget({
+    super.key,
+    required this.child,
+    this.direction = Axis.horizontal,
+    this.animationDuration = const Duration(milliseconds: 6000),
+    this.backDuration = const Duration(milliseconds: 800),
+    this.pauseDuration = const Duration(milliseconds: 800),
+  });
+
+  @override
+  MarqueeWidgetState createState() => MarqueeWidgetState();
+}
+
+class MarqueeWidgetState extends State<MarqueeWidget> {
+  late ScrollController scrollController;
+
+  @override
+  void initState() {
+    scrollController = ScrollController(initialScrollOffset: 50.0);
+    WidgetsBinding.instance.addPostFrameCallback(scroll);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      scrollDirection: widget.direction,
+      controller: scrollController,
+      child: widget.child,
+    );
+  }
+
+  void scroll(_) async {
+    while (scrollController.hasClients) {
+      await Future.delayed(widget.pauseDuration);
+      if (scrollController.hasClients) {
+        await scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: widget.animationDuration,
+          curve: Curves.ease,
+        );
+      }
+      await Future.delayed(widget.pauseDuration);
+      if (scrollController.hasClients) {
+        await scrollController.animateTo(
+          0.0,
+          duration: widget.backDuration,
+          curve: Curves.easeOut,
+        );
+      }
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArtistProfile extends StatelessWidget {
   final ParseObject artist;
@@ -72,6 +73,17 @@ class ArtistProfile extends StatelessWidget {
                   Text(
                     artist['Description'],
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.play_arrow_outlined),
+                      OpenUrlWidget(
+                        label: 'Listen via Stream',
+                        url: artist['Link'],
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -137,6 +149,36 @@ class CupertinoChip extends StatelessWidget {
             letterSpacing: 1.05,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class OpenUrlWidget extends StatelessWidget {
+  final String url;
+  final String label;
+
+  const OpenUrlWidget({
+    super.key,
+    required this.url,
+    required this.label,
+  });
+
+  Future<void> _launchUrl() async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _launchUrl,
+      child: Text(
+        label,
       ),
     );
   }

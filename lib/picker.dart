@@ -95,7 +95,7 @@ class PickerState extends State<Picker> {
             widget.items[_selected] == 'All'
                 ? widget.defaultText
                 : widget.items[_selected],
-            style: TextStyle(fontSize: 16, color: Colors.black),
+            style: TextStyle(fontSize: 14, color: Colors.black),
           ),
         ),
       ),

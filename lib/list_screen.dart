@@ -5,13 +5,35 @@ import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
 import 'package:ymyr/nav_menu.dart';
 
-class ListScreen extends StatelessWidget {
+class ListScreen extends StatefulWidget {
   final List<ParseObject> data;
 
   const ListScreen({
     super.key,
     required this.data,
   });
+
+  @override
+  State<ListScreen> createState() => _ListScreenState();
+}
+
+class _ListScreenState extends State<ListScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    AppState.of(context)!.dataNotifier.addListener(_updateState);
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    AppState.of(context)!.dataNotifier.removeListener(_updateState);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +43,11 @@ class ListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text(
-              "ARTISTS IN",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              AppState.of(context)!.dataNotifier.category == Category.event
+                  ? "EVENTS IN"
+                  : "ARTISTS IN",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               width: 8,
@@ -50,9 +74,9 @@ class ListScreen extends StatelessWidget {
                 maxWidth: 340.0,
               ),
               child: ListView.builder(
-                itemCount: data.length,
+                itemCount: widget.data.length,
                 itemBuilder: (context, index) {
-                  final item = data[index];
+                  final item = widget.data[index];
                   return Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: ArtistProfile(artist: item),

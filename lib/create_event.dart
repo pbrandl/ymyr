@@ -6,30 +6,26 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/main.dart';
 import 'package:ymyr/map.dart';
 
-class Create extends StatefulWidget {
-  const Create({super.key});
+class CreateEvent extends StatefulWidget {
+  const CreateEvent({super.key});
 
   @override
-  State<Create> createState() => _CreateState();
+  State<CreateEvent> createState() => _CreateEventState();
 }
 
-class _CreateState extends State<Create> {
+class _CreateEventState extends State<CreateEvent> {
   final PageController _pageController = PageController();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-
   final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _streamLinkController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
 
-  List<String> genres = genreStringMap.values.toList();
-  List<String> types = typeStringMap.values.toList();
-  int selectedGenre = 0;
-  int selectedType = 0;
   ParseWebFile? webImage;
 
   bool isUploading = false;
@@ -77,14 +73,15 @@ class _CreateState extends State<Create> {
     ParseGeoPoint geoPoint =
         ParseGeoPoint(latitude: coord.latitude, longitude: coord.longitude);
 
-    final artist = ParseObject('Artists')
+    DateTime selectedDate = DateTime.parse(_dateController.text);
+
+    final artist = ParseObject('Events')
       ..set('Name', _nameController.text)
-      ..set('Link', _streamLinkController.text)
       ..set('City', _cityController.text)
+      ..set('Start', selectedDate)
       ..set('Description', _descController.text)
-      ..set('Genre', genres[selectedGenre])
-      ..set('Type', types[selectedType])
       ..set('Coordinates', geoPoint)
+      ..set('Finta', false)
       ..set('Image', webImage);
 
     final response = await artist.save();
@@ -103,7 +100,10 @@ class _CreateState extends State<Create> {
     uploadArtistData().then((_) {
       _goToNextPage();
     }).catchError(
-      (e) => _showErrorDialog(e),
+      (e) {
+        setState(() => isUploading = false);
+        _showErrorDialog(e);
+      },
     );
   }
 
@@ -132,6 +132,11 @@ class _CreateState extends State<Create> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
+          CalendarPicker(
+            dateController: _dateController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
           TextInput(
             labelText: "What's your name?",
             nameController: _nameController,
@@ -145,32 +150,10 @@ class _CreateState extends State<Create> {
             goToPreviousPage: _goToPreviousPage,
           ),
           TextInput(
-            labelText: "Link to Stream",
-            nameController: _streamLinkController,
-            goToNextPage: _goToNextPage,
-            goToPreviousPage: _goToPreviousPage,
-          ),
-          TextInput(
             labelText: "Where are you based?",
             nameController: _cityController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
-          ),
-          FullscreenPicker(
-            initalSelection: selectedGenre,
-            items: genres,
-            onChanged: (int value) => setState(() => selectedGenre = value),
-            goToPreviousPage: _goToPreviousPage,
-            goToNextPage: _goToNextPage,
-          ),
-          FullscreenPicker(
-            initalSelection: selectedType,
-            items: types,
-            onChanged: (value) => setState(() => selectedType = value),
-            goToPreviousPage: () {
-              _goToPreviousPage();
-            },
-            goToNextPage: _goToNextPage,
           ),
           ImagePickerWidget(
             initalImage: webImage,
@@ -644,6 +627,90 @@ class _DescriptionInputState extends State<DescriptionInput> {
               ),
             ],
           )
+        ],
+      ),
+    );
+  }
+}
+
+class CalendarPicker extends StatefulWidget {
+  final TextEditingController dateController;
+
+  final VoidCallback goToPreviousPage;
+  final VoidCallback goToNextPage;
+
+  const CalendarPicker({
+    super.key,
+    required this.dateController,
+    required this.goToPreviousPage,
+    required this.goToNextPage,
+  });
+
+  @override
+  CalendarPickerState createState() => CalendarPickerState();
+}
+
+class CalendarPickerState extends State<CalendarPicker> {
+  DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.dateController.text = _selectedDate
+        .toString()
+        .substring(0, 10); // Initialize with current date
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TableCalendar(
+                  focusedDay: _selectedDate,
+                  firstDay: DateTime(2000),
+                  lastDay: DateTime(2100),
+                  calendarFormat: CalendarFormat.month,
+                  selectedDayPredicate: (day) {
+                    return isSameDay(_selectedDate, day);
+                  },
+                  availableCalendarFormats: const {
+                    CalendarFormat.month: 'Month',
+                  },
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDate = selectedDay;
+                      widget.dateController.text =
+                          selectedDay.toString().substring(0, 10);
+                    });
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: widget.goToPreviousPage,
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text("Back"),
+                    ),
+                    FilledButton.icon(
+                      onPressed: widget.dateController.text.isNotEmpty
+                          ? widget.goToNextPage
+                          : null,
+                      icon: const Icon(Icons.arrow_forward),
+                      label: const Text("Next"),
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );

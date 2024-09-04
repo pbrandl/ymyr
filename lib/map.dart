@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -7,7 +6,6 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
-import 'package:ymyr/main.dart';
 import 'package:geolocator/geolocator.dart';
 
 class OSMFlutterMap extends StatefulWidget {
@@ -102,7 +100,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
           options: MapOptions(
             center: initialCenter,
             zoom: 14.0,
-            minZoom: 2.0,
+            minZoom: 12.0,
             maxZoom: 18.0,
             interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             onPositionChanged: onPositionChanged,
@@ -236,9 +234,13 @@ class CustomMarker extends StatelessWidget {
           );
         },
       ),
-      child: Icon(
-        Icons.location_on,
-        color: Theme.of(context).primaryColor,
+      child: CircleAvatar(
+        backgroundColor: Theme.of(context).cardColor,
+        child: const Text(
+          'Y',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white),
+        ),
       ),
     );
   }

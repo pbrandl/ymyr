@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:ymyr/create.dart';
+import 'package:ymyr/create_artist.dart';
+import 'package:ymyr/create_event.dart';
 import 'package:ymyr/waitlist.dart';
 
 class SideBarNotch extends StatefulWidget {
@@ -100,14 +101,20 @@ class _SideBarNotchState extends State<SideBarNotch>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Create()),
+                                builder: (context) => const CreateArtist()),
                           );
                         },
                         child: const Text("Create Artists"),
                       ),
                       const SizedBox(height: 16),
                       FilledButton(
-                        onPressed: () => {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CreateEvent()),
+                          );
+                        },
                         child: const Text("Create Events"),
                       ),
                       const SizedBox(height: 16),
