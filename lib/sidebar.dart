@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ymyr/create_artist.dart';
 import 'package:ymyr/create_event.dart';
 import 'package:ymyr/waitlist.dart';
@@ -50,6 +51,20 @@ class _SideBarNotchState extends State<SideBarNotch>
     } else {
       isSideBarOpenedSink.add(true);
       _animationController.forward();
+    }
+  }
+
+  Future<void> _sendEmail() async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'stefan@ymyr.world',
+      query: 'subject=Waitlist Request&body=Please add me to the waitlist',
+    );
+
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      throw 'Could not launch $emailUri';
     }
   }
 
@@ -165,7 +180,13 @@ class _SideBarNotchState extends State<SideBarNotch>
                                 ),
                                 actions: <Widget>[
                                   FilledButton(
-                                    child: const Text('Waitlist'),
+                                    child: const Text('Contact'),
+                                    onPressed: () {
+                                      _sendEmail(); // Send an email on click
+                                    },
+                                  ),
+                                  FilledButton(
+                                    child: const Text('Join Waitlist'),
                                     onPressed: () {
                                       Navigator.push(
                                         context,

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
@@ -25,10 +26,38 @@ class _CreateEventState extends State<CreateEvent> {
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _eventLinkController = TextEditingController();
+  final TextEditingController _mailController = TextEditingController();
+
+  List<String> cities = cityStringMap.values.toList();
+  late int selectedCity;
 
   ParseWebFile? webImage;
 
   bool isUploading = false;
+
+  Future<void> loadImageAsUint8List() async {
+    ByteData byteData = await rootBundle.load('images/placeholder.jpeg');
+
+    setState(() {
+      webImage =
+          ParseWebFile(byteData.buffer.asUint8List(), name: 'placeholder.jpeg');
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadImageAsUint8List();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    selectedCity =
+        cityStringMap.keys.toList().indexOf(AppState.of(context)!.city);
+  }
 
   void _goToNextPage() {
     if (_pageController.hasClients) {
@@ -75,21 +104,22 @@ class _CreateEventState extends State<CreateEvent> {
 
     DateTime selectedDate = DateTime.parse(_dateController.text);
 
-    final artist = ParseObject('Events')
+    final event = ParseObject('Events')
       ..set('Name', _nameController.text)
-      ..set('City', _cityController.text)
+      ..set('City', cityStringMap.values.toList()[selectedCity])
       ..set('Start', selectedDate)
-      ..set('Description', _descController.text)
-      ..set('Coordinates', geoPoint)
+      ..set('Description',
+          _descController.text.isEmpty ? "tba" : _descController.text)
+      // ..set('Coordinates', geoPoint)
+      ..set('Mail', _mailController.text)
       ..set('Finta', false)
       ..set('Image', webImage);
 
-    final response = await artist.save();
+    final response = await event.save();
 
     if (response.success) {
       return;
     } else {
-      debugPrint(artist.toString());
       return Future.error('${response.error?.message}');
     }
   }
@@ -132,26 +162,50 @@ class _CreateEventState extends State<CreateEvent> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
+          Info(
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
+          TextInput(
+            headline: "Event Name",
+            labelText: "Please let us know what your event will be called",
+            nameController: _nameController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
+          FullscreenPicker(
+            headline: "Select your city",
+            initalSelection: selectedCity,
+            items: cities,
+            onChanged: (int value) {
+              setState(() => selectedCity = value);
+            },
+            goToPreviousPage: _goToPreviousPage,
+            goToNextPage: _goToNextPage,
+          ),
           CalendarPicker(
             dateController: _dateController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
-          TextInput(
-            labelText: "What's your name?",
-            nameController: _nameController,
-            goToNextPage: _goToNextPage,
-            goToPreviousPage: _goToPreviousPage,
-          ),
           DescriptionInput(
-            labelText: "Description",
+            labelText: "Description (optional)",
             nameController: _descController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
           TextInput(
-            labelText: "Where are you based?",
-            nameController: _cityController,
+            headline: "Link (optional)",
+            labelText: "Is there already a link to your event?",
+            nameController: _eventLinkController,
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+            optional: true,
+          ),
+          TextInput(
+            headline: "Your e-mail (not public)",
+            labelText: "Please let us know how to contact you",
+            nameController: _mailController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
@@ -160,44 +214,32 @@ class _CreateEventState extends State<CreateEvent> {
             onImageChange: (image) => setState(
               () => webImage = ParseWebFile(
                 image,
-                name: '${_nameController.text}_image.png',
+                name: 'image.png',
               ),
             ),
-            goToNextPage: _goToNextPage,
+            goToNextPageButton: FilledButton.icon(
+              onPressed: isUploading
+                  ? null
+                  : () {
+                      _uploadHandler();
+                    },
+              icon: const Icon(Icons.arrow_forward),
+              label: isUploading
+                  ? const Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: SizedBox(
+                          height: 8,
+                          width: 8,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          )),
+                    )
+                  : const Text("Submit"),
+              iconAlignment: IconAlignment.end,
+            ),
             goToPreviousPage: _goToPreviousPage,
           ),
-          Stack(
-            children: [
-              const OSMFlutterMap(),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: isUploading ? null : () => _goToPreviousPage(),
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text("Back"),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 20,
-                right: 20,
-                child: FilledButton(
-                  onPressed: isUploading ? null : () => _uploadHandler(),
-                  iconAlignment: IconAlignment.end,
-                  child: isUploading
-                      ? CircularProgressIndicator(
-                          color: Theme.of(context).primaryColor)
-                      : const Text("Upload"),
-                ),
-              )
-            ],
-          ),
-          const SuccessScreen(message: "Success")
+          const SuccessScreen(message: "Success!")
         ],
       ),
     );
@@ -205,17 +247,21 @@ class _CreateEventState extends State<CreateEvent> {
 }
 
 class TextInput extends StatefulWidget {
+  final String headline;
   final String labelText;
   final TextEditingController nameController;
   final VoidCallback goToPreviousPage;
   final VoidCallback goToNextPage;
+  final bool optional;
 
   const TextInput({
     super.key,
+    required this.headline,
     required this.labelText,
     required this.nameController,
     required this.goToNextPage,
     required this.goToPreviousPage,
+    this.optional = false,
   });
 
   @override
@@ -251,53 +297,64 @@ class _TextInputState extends State<TextInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 32),
-          TextField(
-            controller: widget.nameController,
-            focusNode: _focusNode,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: widget.labelText,
-              labelStyle: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              border: InputBorder.none,
-            ),
-            style: const TextStyle(
-              fontSize: 24.0,
-            ),
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                widget.goToNextPage();
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Center(
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FilledButton.icon(
-                onPressed: widget.goToPreviousPage,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Back"),
+              Text(
+                widget.headline,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              FilledButton.icon(
-                onPressed: widget.nameController.text.isNotEmpty
-                    ? widget.goToNextPage
-                    : null,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
+              const SizedBox(height: 32),
+              TextField(
+                controller: widget.nameController,
+                focusNode: _focusNode,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: widget.labelText,
+                  labelStyle: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(
+                  fontSize: 24.0,
+                ),
+                onSubmitted: (value) {
+                  if (value.isNotEmpty) {
+                    widget.goToNextPage();
+                  }
+                },
               ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FilledButton.icon(
+                    onPressed: widget.goToPreviousPage,
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text("Back"),
+                  ),
+                  FilledButton.icon(
+                    onPressed:
+                        widget.nameController.text.isNotEmpty || widget.optional
+                            ? widget.goToNextPage
+                            : null,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text("Next"),
+                    iconAlignment: IconAlignment.end,
+                  ),
+                ],
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -306,14 +363,14 @@ class _TextInputState extends State<TextInput> {
 class ImagePickerWidget extends StatefulWidget {
   final Function(Uint8List?) onImageChange;
   final VoidCallback goToPreviousPage;
-  final VoidCallback goToNextPage;
   final ParseWebFile? initalImage;
+  final Widget goToNextPageButton;
 
   const ImagePickerWidget({
     super.key,
     required this.onImageChange,
     required this.goToPreviousPage,
-    required this.goToNextPage,
+    required this.goToNextPageButton,
     this.initalImage,
   });
 
@@ -392,16 +449,7 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
                 icon: const Icon(Icons.arrow_back),
                 label: const Text("Back"),
               ),
-              FilledButton.icon(
-                onPressed: webImage == null
-                    ? null
-                    : () {
-                        widget.goToNextPage();
-                      },
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
-              ),
+              widget.goToNextPageButton
             ],
           ),
         ),
@@ -417,6 +465,8 @@ class FullscreenPicker extends StatefulWidget {
   final Function goToPreviousPage;
   final Function goToNextPage;
 
+  final String headline;
+
   const FullscreenPicker({
     super.key,
     required this.items,
@@ -424,6 +474,7 @@ class FullscreenPicker extends StatefulWidget {
     required this.goToPreviousPage,
     required this.goToNextPage,
     required this.initalSelection,
+    required this.headline,
   });
 
   @override
@@ -446,48 +497,66 @@ class FullscreenPickerState extends State<FullscreenPicker> {
       children: [
         Center(
           child: SizedBox(
+            width: 400,
             height: 450,
-            child: CupertinoPicker(
-              magnification: 1,
-              squeeze: 1.3,
-              useMagnifier: true,
-              itemExtent: 30,
-              scrollController: FixedExtentScrollController(
-                initialItem: _selected,
-              ),
-              onSelectedItemChanged: (int selectedItem) {
-                setState(() {
-                  _selected = selectedItem;
-                });
-                widget.onChanged(_selected);
-              },
-              children: List<Widget>.generate(widget.items.length, (int index) {
-                return Center(child: Text(widget.items[index]));
-              }),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.headline,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                SizedBox(
+                  height: 400,
+                  child: CupertinoPicker(
+                    magnification: 1,
+                    squeeze: 1.3,
+                    useMagnifier: true,
+                    itemExtent: 30,
+                    scrollController: FixedExtentScrollController(
+                      initialItem: _selected,
+                    ),
+                    onSelectedItemChanged: (int selectedItem) {
+                      setState(() {
+                        _selected = selectedItem;
+                      });
+                      widget.onChanged(_selected);
+                    },
+                    children:
+                        List<Widget>.generate(widget.items.length, (int index) {
+                      return Center(child: Text(widget.items[index]));
+                    }),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              FilledButton.icon(
-                onPressed: () {
-                  widget.goToPreviousPage();
-                },
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Back"),
-              ),
-              FilledButton.icon(
-                onPressed: () {
-                  widget.goToNextPage();
-                },
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
-              ),
-            ],
+          child: SizedBox(
+            width: 400,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                FilledButton.icon(
+                  onPressed: () {
+                    widget.goToPreviousPage();
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text("Back"),
+                ),
+                FilledButton.icon(
+                  onPressed: () {
+                    widget.goToNextPage();
+                  },
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text("Next"),
+                  iconAlignment: IconAlignment.end,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -508,26 +577,49 @@ class SuccessScreenState extends State<SuccessScreen> {
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const Home()),
-          (Route<dynamic> route) => false,
-        );
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.white,
       body: Center(
-        child: Text(
-          widget.message,
-          style: const TextStyle(fontSize: 24.0, color: Colors.white),
-          textAlign: TextAlign.center,
+        child: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  size: 44, color: Colors.green),
+              const SizedBox(
+                height: 16,
+              ),
+              Text(
+                widget.message,
+                style: Theme.of(context).textTheme.headlineLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              const Text(
+                  "Thank You! We’ve received your submission and will be in touch shortly regarding your event. Pls check your spam just in case. It might take us 1 day to get back to you."),
+              const SizedBox(
+                height: 32,
+              ),
+              Center(
+                child: FilledButton(
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const Home()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                    child: const Text("Home")),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -618,9 +710,7 @@ class _DescriptionInputState extends State<DescriptionInput> {
                 label: const Text("Back"),
               ),
               FilledButton.icon(
-                onPressed: widget.nameController.text.isNotEmpty
-                    ? widget.goToNextPage
-                    : null,
+                onPressed: widget.goToNextPage,
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text("Next"),
                 iconAlignment: IconAlignment.end,
@@ -652,6 +742,7 @@ class CalendarPicker extends StatefulWidget {
 
 class CalendarPickerState extends State<CalendarPicker> {
   DateTime _selectedDate = DateTime.now();
+  TimeOfDay? selectedTime;
 
   @override
   void initState() {
@@ -661,57 +752,145 @@ class CalendarPickerState extends State<CalendarPicker> {
         .substring(0, 10); // Initialize with current date
   }
 
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      hourLabelText: "Hour",
+      minuteLabelText: "Minute",
+      context: context,
+      initialTime: const TimeOfDay(hour: 0, minute: 0),
+    );
+    if (picked != null && picked != selectedTime) {
+      setState(() {
+        selectedTime = picked;
+        String formattedTime =
+            "${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}";
+
+        widget.dateController.text =
+            "${_selectedDate.toString().substring(0, 10)} $formattedTime";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 400,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TableCalendar(
-                  focusedDay: _selectedDate,
-                  firstDay: DateTime(2000),
-                  lastDay: DateTime(2100),
-                  calendarFormat: CalendarFormat.month,
-                  selectedDayPredicate: (day) {
-                    return isSameDay(_selectedDate, day);
-                  },
-                  availableCalendarFormats: const {
-                    CalendarFormat.month: 'Month',
-                  },
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDate = selectedDay;
-                      widget.dateController.text =
-                          selectedDay.toString().substring(0, 10);
-                    });
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: widget.goToPreviousPage,
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text("Back"),
-                    ),
-                    FilledButton.icon(
-                      onPressed: widget.dateController.text.isNotEmpty
-                          ? widget.goToNextPage
-                          : null,
-                      icon: const Icon(Icons.arrow_forward),
-                      label: const Text("Next"),
-                      iconAlignment: IconAlignment.end,
-                    ),
-                  ],
-                )
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Date & Time",
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  TableCalendar(
+                    focusedDay: _selectedDate,
+                    firstDay: DateTime(2000),
+                    lastDay: DateTime(2100),
+                    calendarFormat: CalendarFormat.month,
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDate, day);
+                    },
+                    availableCalendarFormats: const {
+                      CalendarFormat.month: 'Month',
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDate = selectedDay;
+                        widget.dateController.text = selectedDay.toString();
+                      });
+                    },
+                  ),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.timer),
+                    onPressed: () => _selectTime(context),
+                    label: Text(selectedTime == null
+                        ? "Starting Time"
+                        : "${selectedTime!.hourOfPeriod == 0 ? 12 : selectedTime!.hourOfPeriod}:${selectedTime!.minute.toString().padLeft(2, '0')} ${selectedTime!.period == DayPeriod.am ? 'AM' : 'PM'}"),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      FilledButton.icon(
+                        onPressed: widget.goToPreviousPage,
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text("Back"),
+                      ),
+                      FilledButton.icon(
+                        onPressed: widget.dateController.text.isNotEmpty &&
+                                selectedTime != null
+                            ? widget.goToNextPage
+                            : null,
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text("Next"),
+                        iconAlignment: IconAlignment.end,
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class Info extends StatelessWidget {
+  final void Function() goToNextPage;
+
+  final void Function() goToPreviousPage;
+
+  const Info(
+      {super.key, required this.goToNextPage, required this.goToPreviousPage});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                "Music Events on YMYR",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "The YMYR event map is an open infrastructure that makes music events in your region visible. To add your event to the kalendar, please follow these 3 simple steps.",
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FilledButton.icon(
+                    onPressed: goToPreviousPage,
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text("Back"),
+                  ),
+                  FilledButton.icon(
+                    onPressed: goToNextPage,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text("Next"),
+                    iconAlignment: IconAlignment.end,
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

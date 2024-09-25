@@ -136,34 +136,16 @@ class _FintaActionChipState extends State<FintaActionChip> {
         width: 76,
         height: 36,
         decoration: BoxDecoration(
-          gradient: !toggle
-              ? null
-              : const LinearGradient(
-                  colors: [
-                    Colors.red,
-                    Colors.orange,
-                    Colors.yellow,
-                    Colors.green,
-                    Colors.blue,
-                    Colors.purple,
-                  ],
-                  stops: [
-                    0.16, // End of the first color and start of the second
-                    0.33, // End of the second color and start of the third
-                    0.5, // End of the third color and start of the fourth
-                    0.66, // End of the fourth color and start of the fifth
-                    0.83, // End of the fifth color and start of the sixth
-                    1.0, // End of the sixth color
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-        ),
-        child: const Center(
+            color:
+                !toggle ? Colors.transparent : Theme.of(context).primaryColor),
+        child: Center(
           child: Text(
             'Finta',
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14, color: Colors.black),
+            style: TextStyle(
+              fontSize: 14,
+              color: !toggle ? Colors.black : Colors.white,
+            ),
           ),
         ),
       ),

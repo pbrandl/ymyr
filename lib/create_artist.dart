@@ -48,6 +48,7 @@ class _CreateArtistState extends State<CreateArtist> {
     });
   }
 
+  @override
   void initState() {
     super.initState();
     loadImageAsUint8List();
@@ -171,7 +172,7 @@ class _CreateArtistState extends State<CreateArtist> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          Continue(
+          Info(
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
@@ -770,12 +771,12 @@ class _DescriptionInputState extends State<DescriptionInput> {
   }
 }
 
-class Continue extends StatelessWidget {
+class Info extends StatelessWidget {
   final void Function() goToNextPage;
 
   final void Function() goToPreviousPage;
 
-  const Continue(
+  const Info(
       {super.key, required this.goToNextPage, required this.goToPreviousPage});
 
   @override
