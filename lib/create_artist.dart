@@ -8,6 +8,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/main.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:ymyr/map.dart';
 
 class CreateArtist extends StatefulWidget {
@@ -22,17 +24,42 @@ class _CreateArtistState extends State<CreateArtist> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final TextEditingController _mailController = TextEditingController();
 
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _streamLinkController = TextEditingController();
 
   List<String> genres = genreStringMap.values.toList();
   List<String> types = typeStringMap.values.toList();
+  List<String> cities = cityStringMap.values.toList();
+  late int selectedCity;
   int selectedGenre = 0;
   int selectedType = 0;
-  ParseWebFile? webImage;
+  late ParseWebFile? webImage;
 
   bool isUploading = false;
+
+  Future<void> loadImageAsUint8List() async {
+    ByteData byteData = await rootBundle.load('images/placeholder.jpeg');
+
+    setState(() {
+      webImage =
+          ParseWebFile(byteData.buffer.asUint8List(), name: 'placeholder.jpeg');
+    });
+  }
+
+  void initState() {
+    super.initState();
+    loadImageAsUint8List();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    selectedCity =
+        cityStringMap.keys.toList().indexOf(AppState.of(context)!.city);
+  }
 
   void _goToNextPage() {
     if (_pageController.hasClients) {
@@ -41,8 +68,12 @@ class _CreateArtistState extends State<CreateArtist> {
         curve: Curves.easeIn,
       );
 
-      if (_pageController.page?.toInt() == 3) {
+      if (_pageController.page?.toInt() == 4) {
+        debugPrint(_pageController.page?.toInt().toString());
         AppState.of(context)!.mode = true;
+      } else {
+        debugPrint(_pageController.page?.toInt().toString());
+        AppState.of(context)!.mode = false;
       }
     }
   }
@@ -60,7 +91,11 @@ class _CreateArtistState extends State<CreateArtist> {
         );
 
         if (_pageController.page?.toInt() != 4) {
+          debugPrint(_pageController.page?.toInt().toString());
           AppState.of(context)!.mode = false;
+        } else {
+          debugPrint(_pageController.page?.toInt().toString());
+          AppState.of(context)!.mode = true;
         }
       }
     }
@@ -80,10 +115,11 @@ class _CreateArtistState extends State<CreateArtist> {
     final artist = ParseObject('Artists')
       ..set('Name', _nameController.text)
       ..set('Link', _streamLinkController.text)
-      ..set('City', _cityController.text)
-      ..set('Description', _descController.text)
-      ..set('Genre', genres[selectedGenre])
-      ..set('Type', types[selectedType])
+      ..set('City', cityStringMap.values.toList()[selectedCity])
+      ..set('Description', 'tba')
+      ..set('Genre', 'tba')
+      ..set('Type', 'tba')
+      ..set('Mail', _mailController.text)
       ..set('Coordinates', geoPoint)
       ..set('Image', webImage);
 
@@ -103,7 +139,10 @@ class _CreateArtistState extends State<CreateArtist> {
     uploadArtistData().then((_) {
       _goToNextPage();
     }).catchError(
-      (e) => _showErrorDialog(e),
+      (e) {
+        _showErrorDialog(e);
+        setState(() => isUploading = true);
+      },
     );
   }
 
@@ -132,57 +171,82 @@ class _CreateArtistState extends State<CreateArtist> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
+          Continue(
+            goToNextPage: _goToNextPage,
+            goToPreviousPage: _goToPreviousPage,
+          ),
           TextInput(
-            labelText: "What's your name?",
+            headline: "Artist / Band name",
+            labelText: "Please let us know what your alias is",
             nameController: _nameController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
-          DescriptionInput(
-            labelText: "Description",
-            nameController: _descController,
-            goToNextPage: _goToNextPage,
-            goToPreviousPage: _goToPreviousPage,
-          ),
+          // DescriptionInput(
+          //   labelText: "Description",
+          //   nameController: _descController,
+          //   goToNextPage: _goToNextPage,
+          //   goToPreviousPage: _goToPreviousPage,
+          // ),
           TextInput(
-            labelText: "Link to Stream",
+            headline: "Link to Music",
+            labelText: "Please provide a valid link to your music",
             nameController: _streamLinkController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
+          // TextInput(
+          //   headline: "Pick your music scenes",
+          //   labelText: "Where are you based?",
+          //   nameController: _cityController,
+          //   goToNextPage: _goToNextPage,
+          //   goToPreviousPage: _goToPreviousPage,
+          // ),
           TextInput(
-            labelText: "Where are you based?",
-            nameController: _cityController,
+            headline: "Your e-mail (not public)",
+            labelText: "Please provide your mail",
+            nameController: _mailController,
             goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
           ),
           FullscreenPicker(
-            initalSelection: selectedGenre,
-            items: genres,
-            onChanged: (int value) => setState(() => selectedGenre = value),
-            goToPreviousPage: _goToPreviousPage,
-            goToNextPage: _goToNextPage,
-          ),
-          FullscreenPicker(
-            initalSelection: selectedType,
-            items: types,
-            onChanged: (value) => setState(() => selectedType = value),
-            goToPreviousPage: () {
-              _goToPreviousPage();
+            headline: "Select your city",
+            initalSelection: selectedCity,
+            items: cities,
+            onChanged: (int value) {
+              setState(() => selectedCity = value);
+              AppState.of(context)!.city = cityStringMap.keys.toList()[value];
             },
-            goToNextPage: _goToNextPage,
-          ),
-          ImagePickerWidget(
-            initalImage: webImage,
-            onImageChange: (image) => setState(
-              () => webImage = ParseWebFile(
-                image,
-                name: '${_nameController.text}_image.png',
-              ),
-            ),
-            goToNextPage: _goToNextPage,
             goToPreviousPage: _goToPreviousPage,
+            goToNextPage: _goToNextPage,
           ),
+          // FullscreenPicker(
+          //   initalSelection: selectedGenre,
+          //   items: genres,
+          //   onChanged: (int value) => setState(() => selectedGenre = value),
+          //   goToPreviousPage: _goToPreviousPage,
+          //   goToNextPage: _goToNextPage,
+          // ),
+          // FullscreenPicker(
+          //   initalSelection: selectedType,
+          //   items: types,
+          //   onChanged: (value) => setState(() => selectedType = value),
+          //   goToPreviousPage: () {
+          //     _goToPreviousPage();
+          //   },
+          //   goToNextPage: _goToNextPage,
+          // ),
+          // ImagePickerWidget(
+          //   initalImage: webImage,
+          //   onImageChange: (image) => setState(
+          //     () => webImage = ParseWebFile(
+          //       image,
+          //       name: '${_nameController.text}_image.png',
+          //     ),
+          //   ),
+          //   goToNextPage: _goToNextPage,
+          //   goToPreviousPage: _goToPreviousPage,
+          // ),
           Stack(
             children: [
               const OSMFlutterMap(),
@@ -209,12 +273,12 @@ class _CreateArtistState extends State<CreateArtist> {
                   child: isUploading
                       ? CircularProgressIndicator(
                           color: Theme.of(context).primaryColor)
-                      : const Text("Upload"),
+                      : const Text("Submit"),
                 ),
               )
             ],
           ),
-          const SuccessScreen(message: "Success")
+          const SuccessScreen(message: "Success!")
         ],
       ),
     );
@@ -222,6 +286,7 @@ class _CreateArtistState extends State<CreateArtist> {
 }
 
 class TextInput extends StatefulWidget {
+  final String headline;
   final String labelText;
   final TextEditingController nameController;
   final VoidCallback goToPreviousPage;
@@ -229,6 +294,7 @@ class TextInput extends StatefulWidget {
 
   const TextInput({
     super.key,
+    required this.headline,
     required this.labelText,
     required this.nameController,
     required this.goToNextPage,
@@ -268,53 +334,63 @@ class _TextInputState extends State<TextInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 32),
-          TextField(
-            controller: widget.nameController,
-            focusNode: _focusNode,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: widget.labelText,
-              labelStyle: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              border: InputBorder.none,
-            ),
-            style: const TextStyle(
-              fontSize: 24.0,
-            ),
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                widget.goToNextPage();
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Center(
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FilledButton.icon(
-                onPressed: widget.goToPreviousPage,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Back"),
+              Text(
+                widget.headline,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              FilledButton.icon(
-                onPressed: widget.nameController.text.isNotEmpty
-                    ? widget.goToNextPage
-                    : null,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
+              const SizedBox(height: 32),
+              TextField(
+                controller: widget.nameController,
+                focusNode: _focusNode,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: widget.labelText,
+                  labelStyle: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(
+                  fontSize: 24.0,
+                ),
+                onSubmitted: (value) {
+                  if (value.isNotEmpty) {
+                    widget.goToNextPage();
+                  }
+                },
               ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FilledButton.icon(
+                    onPressed: widget.goToPreviousPage,
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text("Back"),
+                  ),
+                  FilledButton.icon(
+                    onPressed: widget.nameController.text.isNotEmpty
+                        ? widget.goToNextPage
+                        : null,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text("Next"),
+                    iconAlignment: IconAlignment.end,
+                  ),
+                ],
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -434,6 +510,8 @@ class FullscreenPicker extends StatefulWidget {
   final Function goToPreviousPage;
   final Function goToNextPage;
 
+  final String headline;
+
   const FullscreenPicker({
     super.key,
     required this.items,
@@ -441,6 +519,7 @@ class FullscreenPicker extends StatefulWidget {
     required this.goToPreviousPage,
     required this.goToNextPage,
     required this.initalSelection,
+    required this.headline,
   });
 
   @override
@@ -463,48 +542,66 @@ class FullscreenPickerState extends State<FullscreenPicker> {
       children: [
         Center(
           child: SizedBox(
+            width: 400,
             height: 450,
-            child: CupertinoPicker(
-              magnification: 1,
-              squeeze: 1.3,
-              useMagnifier: true,
-              itemExtent: 30,
-              scrollController: FixedExtentScrollController(
-                initialItem: _selected,
-              ),
-              onSelectedItemChanged: (int selectedItem) {
-                setState(() {
-                  _selected = selectedItem;
-                });
-                widget.onChanged(_selected);
-              },
-              children: List<Widget>.generate(widget.items.length, (int index) {
-                return Center(child: Text(widget.items[index]));
-              }),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.headline,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                SizedBox(
+                  height: 400,
+                  child: CupertinoPicker(
+                    magnification: 1,
+                    squeeze: 1.3,
+                    useMagnifier: true,
+                    itemExtent: 30,
+                    scrollController: FixedExtentScrollController(
+                      initialItem: _selected,
+                    ),
+                    onSelectedItemChanged: (int selectedItem) {
+                      setState(() {
+                        _selected = selectedItem;
+                      });
+                      widget.onChanged(_selected);
+                    },
+                    children:
+                        List<Widget>.generate(widget.items.length, (int index) {
+                      return Center(child: Text(widget.items[index]));
+                    }),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              FilledButton.icon(
-                onPressed: () {
-                  widget.goToPreviousPage();
-                },
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Back"),
-              ),
-              FilledButton.icon(
-                onPressed: () {
-                  widget.goToNextPage();
-                },
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
-              ),
-            ],
+          child: SizedBox(
+            width: 400,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                FilledButton.icon(
+                  onPressed: () {
+                    widget.goToPreviousPage();
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text("Back"),
+                ),
+                FilledButton.icon(
+                  onPressed: () {
+                    widget.goToNextPage();
+                  },
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text("Next"),
+                  iconAlignment: IconAlignment.end,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -525,26 +622,49 @@ class SuccessScreenState extends State<SuccessScreen> {
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const Home()),
-          (Route<dynamic> route) => false,
-        );
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.white,
       body: Center(
-        child: Text(
-          widget.message,
-          style: const TextStyle(fontSize: 24.0, color: Colors.white),
-          textAlign: TextAlign.center,
+        child: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  size: 44, color: Colors.green),
+              const SizedBox(
+                height: 16,
+              ),
+              Text(
+                widget.message,
+                style: Theme.of(context).textTheme.headlineLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              const Text(
+                  "Thank You! We’ve received your submission and will be in touch shortly regarding your artist profile. Please check your spam just in case. It might take us 1 day to get back to you."),
+              const SizedBox(
+                height: 32,
+              ),
+              Center(
+                child: FilledButton(
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const Home()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                    child: const Text("Home")),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -645,6 +765,59 @@ class _DescriptionInputState extends State<DescriptionInput> {
             ],
           )
         ],
+      ),
+    );
+  }
+}
+
+class Continue extends StatelessWidget {
+  final void Function() goToNextPage;
+
+  final void Function() goToPreviousPage;
+
+  const Continue(
+      {super.key, required this.goToNextPage, required this.goToPreviousPage});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                "Get listed on YMYR",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "The YMYR artist map is an open infrastructure to make artists visible and discoverable. To add yourself to the map, please follow these 3 simple steps to submit a profile request. We will then contact you via email to complete your profile.",
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FilledButton.icon(
+                    onPressed: goToPreviousPage,
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text("Back"),
+                  ),
+                  FilledButton.icon(
+                    onPressed: goToNextPage,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text("Next"),
+                    iconAlignment: IconAlignment.end,
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
