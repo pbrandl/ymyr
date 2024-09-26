@@ -4,6 +4,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ymyr/create_artist.dart';
 import 'package:ymyr/create_event.dart';
+import 'package:ymyr/create_station.dart';
 import 'package:ymyr/waitlist.dart';
 
 class SideBarNotch extends StatefulWidget {
@@ -134,81 +135,95 @@ class _SideBarNotchState extends State<SideBarNotch>
                       ),
                       const SizedBox(height: 16),
                       FilledButton(
-                        onPressed: () => {
-                          showDialog<void>(
-                            context: context,
-                            barrierDismissible: false, // user must tap button!
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Center(
-                                    child: Text('YMYR',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineLarge)),
-                                content: const SingleChildScrollView(
-                                  child: ListBody(
-                                    children: <Widget>[
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'YMYR is localized music discovery network.'),
-                                      SizedBox(height: 8),
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'Its mission is to make local music culture visible by giving unique overview of local artists, collectives and events that are shaping your neighborhoods music scene.'),
-                                      SizedBox(height: 8),
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'In this stage we are focused on representing the Freiburg Music Scene with plans to expand further in BW, Germany and the globe.'),
-                                      SizedBox(height: 8),
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'By offering an alternative to algorithmic music discovery, we hope to help local emerging artist gain more visibility and livening up local music scenes.'),
-                                      SizedBox(height: 8),
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'If you are intersted in what is next for YMYR and want to support us by testing new versions of our service, please sign up to the waitlist by leaving your email.'),
-                                      SizedBox(height: 8),
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'We will contact you as soon as there is a new version to explore.'),
-                                      SizedBox(height: 8),
-                                      Text(
-                                          textAlign: TextAlign.center,
-                                          'Cheers!')
-                                    ],
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  FilledButton(
-                                    child: const Text('Contact'),
-                                    onPressed: () {
-                                      _sendEmail(); // Send an email on click
-                                    },
-                                  ),
-                                  FilledButton(
-                                    child: const Text('Join Waitlist'),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const Waitlist(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  FilledButton(
-                                    child: const Text('Close'),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          )
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CreateStation()),
+                          );
                         },
-                        child: const Text("About"),
+                        child: const Text("Create Station"),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: 135,
+                        child: FilledButton(
+                          onPressed: () => {
+                            showDialog<void>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Center(
+                                      child: Text('YMYR',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge)),
+                                  content: const SingleChildScrollView(
+                                    child: ListBody(
+                                      children: <Widget>[
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'YMYR is localized music discovery network.'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'Its mission is to make local music culture visible by giving unique overview of local artists, collectives and events that are shaping your neighborhoods music scene.'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'In this stage we are focused on representing the Freiburg Music Scene with plans to expand further in BW, Germany and the globe.'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'By offering an alternative to algorithmic music discovery, we hope to help local emerging artist gain more visibility and livening up local music scenes.'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'If you are intersted in what is next for YMYR and want to support us by testing new versions of our service, please sign up to the waitlist by leaving your email.'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'We will contact you as soon as there is a new version to explore.'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                            textAlign: TextAlign.center,
+                                            'Cheers!')
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    FilledButton(
+                                      child: const Text('Contact'),
+                                      onPressed: () {
+                                        _sendEmail(); // Send an email on click
+                                      },
+                                    ),
+                                    FilledButton(
+                                      child: const Text('Join Waitlist'),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Waitlist(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    FilledButton(
+                                      child: const Text('Close'),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            )
+                          },
+                          child: const Text("About"),
+                        ),
                       ),
                     ],
                   ),
