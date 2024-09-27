@@ -132,8 +132,8 @@ class _MapScreenState extends State<MapScreen> {
         ),
         const Positioned(
           bottom: 20,
-          left: 0,
           right: 0,
+          left: 0,
           child: Center(
             child: SizedBox(
               width: 200,
