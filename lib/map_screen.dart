@@ -99,52 +99,133 @@ class _MapScreenState extends State<MapScreen> {
           ],
         ),
       ),
-      body: Stack(clipBehavior: Clip.none, children: [
-        const OSMFlutterMap(),
+      body: const Stack(clipBehavior: Clip.none, children: [
+        OSMFlutterMap(),
         Positioned(
           top: 20,
           right: 50,
           left: 50,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Picker(
-                defaultText: AppState.of(context)!.dataNotifier.genre == 'All'
-                    ? 'Genre'
-                    : AppState.of(context)!.dataNotifier.genre,
-                items: ['All'] + genreStringMap.values.toList(),
-                onChanged: (genre) =>
-                    AppState.of(context)!.dataNotifier.genre = genre,
-              ),
-              const SizedBox(width: 24),
-              Picker(
-                defaultText: AppState.of(context)!.dataNotifier.type == 'All'
-                    ? 'Type'
-                    : AppState.of(context)!.dataNotifier.type,
-                items: ['All'] + typeStringMap.values.toList(),
-                onChanged: (type) =>
-                    AppState.of(context)!.dataNotifier.type = type,
-              ),
-              const SizedBox(width: 24),
-              const FintaActionChip(),
-            ],
-          ),
+          child: CateogryActionChips(),
         ),
-        const Positioned(
+        Positioned(
           bottom: 20,
           right: 0,
           left: 0,
           child: Center(
-            child: SizedBox(
-              width: 200,
-              child: NavMenu(
-                appview: AppView.map,
+            child: NavMenu(
+              appview: AppView.map,
+            ),
+          ),
+        ),
+        SideBarNotch(),
+      ]),
+    );
+  }
+}
+
+class CateogryActionChips extends StatefulWidget {
+  const CateogryActionChips({super.key});
+
+  @override
+  State<CateogryActionChips> createState() => _CateogryActionChipsState();
+}
+
+class _CateogryActionChipsState extends State<CateogryActionChips> {
+  bool toggle = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ActionChip(
+          clipBehavior: Clip.antiAlias,
+          labelPadding: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            AppState.of(context)!.dataNotifier.category = Category.artist;
+          },
+          label: Container(
+            width: 76,
+            height: 36,
+            decoration: BoxDecoration(
+              color:
+                  AppState.of(context)!.dataNotifier.category != Category.artist
+                      ? Colors.transparent
+                      : Theme.of(context).primaryColor,
+            ),
+            child: Center(
+              child: Text(
+                'Artist',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: !toggle ? Colors.black : Colors.white,
+                ),
               ),
             ),
           ),
         ),
-        const SideBarNotch(),
-      ]),
+        const SizedBox(width: 16),
+        ActionChip(
+          clipBehavior: Clip.antiAlias,
+          labelPadding: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            AppState.of(context)!.dataNotifier.category = Category.event;
+          },
+          label: Container(
+            width: 76,
+            height: 36,
+            decoration: BoxDecoration(
+              color:
+                  AppState.of(context)!.dataNotifier.category != Category.event
+                      ? Colors.transparent
+                      : Theme.of(context).primaryColor,
+            ),
+            child: Center(
+              child: Text(
+                'Events',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: !toggle ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        ActionChip(
+          clipBehavior: Clip.antiAlias,
+          labelPadding: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            AppState.of(context)!.dataNotifier.category = Category.station;
+          },
+          label: Container(
+            width: 76,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppState.of(context)!.dataNotifier.category !=
+                      Category.station
+                  ? Colors.transparent
+                  : Theme.of(context).primaryColor,
+            ),
+            child: Center(
+              child: Text(
+                'Stations',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: !toggle ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

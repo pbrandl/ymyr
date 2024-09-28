@@ -29,7 +29,7 @@ final Map<Type, String> typeStringMap = {
   Type.dj: 'DJ',
 };
 
-enum Category { event, artist }
+enum Category { event, artist, station }
 
 enum AppView { list, map }
 
@@ -136,6 +136,7 @@ class LocationNotifier extends ChangeNotifier {
 class DataNotifier extends ChangeNotifier {
   Category _category = Category.artist;
   List<ParseObject> _events = [];
+  List<ParseObject> _stations = [];
   List<ParseObject> _artists = [];
   String _genre = 'All';
   String _type = 'All';
@@ -148,6 +149,7 @@ class DataNotifier extends ChangeNotifier {
   Category get category => _category;
   List<ParseObject> get events => _events;
   List<ParseObject> get artists => _artists;
+  List<ParseObject> get station => _stations;
   List<ParseObject> get current => _filtered;
 
   List<ParseObject> _filtered = [];
@@ -178,7 +180,12 @@ class DataNotifier extends ChangeNotifier {
     String type,
     bool finta,
   ) {
-    _filtered = (category == Category.event ? events : artists).where((item) {
+    _filtered = (category == Category.event
+            ? events
+            : category == Category.artist
+                ? artists
+                : station)
+        .where((item) {
       final itemGenre = item.get<String>('Genre');
       final itemType = item.get<String>('Type');
       final itemFinta = item.get<bool>('Finta');
@@ -196,10 +203,7 @@ class DataNotifier extends ChangeNotifier {
 
   Future<void> _initialize() async {
     // await Future.delayed(const Duration(seconds: 3));
-    await Future.wait([
-      fetchArtists(),
-      fetchEvents(),
-    ]);
+    await Future.wait([fetchArtists(), fetchEvents(), fetchStations()]);
     notifyListeners();
   }
 
@@ -215,6 +219,20 @@ class DataNotifier extends ChangeNotifier {
       _filtered = _artists;
     } else {
       print('Failed to fetch artists: ${response.error?.message}');
+    }
+  }
+
+  Future<void> fetchStations() async {
+    final QueryBuilder<ParseObject> queryArtists =
+        QueryBuilder<ParseObject>(ParseObject('Sessions'))
+          ..whereEqualTo('Approved', true);
+
+    final ParseResponse response = await queryArtists.query();
+
+    if (response.success && response.results != null) {
+      _stations = response.results as List<ParseObject>;
+    } else {
+      print('Failed to fetch stations: ${response.error?.message}');
     }
   }
 
