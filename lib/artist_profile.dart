@@ -5,10 +5,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ArtistProfile extends StatelessWidget {
   final ParseObject artist;
+  final bool showCloseButton;
 
   const ArtistProfile({
     super.key,
     required this.artist,
+    this.showCloseButton = true,
   });
 
   @override
@@ -87,29 +89,30 @@ class ArtistProfile extends StatelessWidget {
                 ],
               ),
             ),
-            Positioned(
-                right: 20,
-                top: 65,
-                child: Container(
-                  height: 30,
-                  width: 30,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2.0,
+            if (showCloseButton)
+              Positioned(
+                  right: 20,
+                  top: 65,
+                  child: Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2.0,
+                      ),
                     ),
-                  ),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    iconSize: 20,
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.white,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      iconSize: 20,
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                )),
+                  )),
           ],
         ),
       ),

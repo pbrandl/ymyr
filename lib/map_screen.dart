@@ -79,7 +79,10 @@ class _MapScreenState extends State<MapScreen> {
             Text(
               AppState.of(context)!.dataNotifier.category == Category.event
                   ? "EVENTS IN"
-                  : "ARTISTS IN",
+                  : AppState.of(context)!.dataNotifier.category ==
+                          Category.artist
+                      ? "ARTISTS IN"
+                      : "STATIONS IN",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(

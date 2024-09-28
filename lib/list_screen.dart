@@ -4,6 +4,7 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
 import 'package:ymyr/main.dart';
+import 'package:ymyr/map_screen.dart';
 import 'package:ymyr/nav_menu.dart';
 import 'package:ymyr/picker.dart';
 
@@ -49,7 +50,10 @@ class _ListScreenState extends State<ListScreen> {
             Text(
               AppState.of(context)!.dataNotifier.category == Category.event
                   ? "EVENTS IN"
-                  : "ARTISTS IN",
+                  : AppState.of(context)!.dataNotifier.category ==
+                          Category.artist
+                      ? "ARTISTS IN"
+                      : "STATIONS IN",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
@@ -76,58 +80,34 @@ class _ListScreenState extends State<ListScreen> {
               constraints: const BoxConstraints(
                 maxWidth: 400.0,
               ),
-              child: ListView.builder(
-                itemCount: widget.data.length,
-                itemBuilder: (context, index) {
-                  final item = widget.data[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ArtistProfile(artist: item),
-                  );
-                },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 48.0),
+                child: ListView.builder(
+                  itemCount: widget.data.length,
+                  itemBuilder: (context, index) {
+                    final item = widget.data[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child:
+                          ArtistProfile(artist: item, showCloseButton: false),
+                    );
+                  },
+                ),
               ),
             ),
-            Positioned(
+            const Positioned(
               top: 20,
               right: 50,
               left: 50,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Picker(
-                    defaultText:
-                        AppState.of(context)!.dataNotifier.genre == 'All'
-                            ? 'Genre'
-                            : AppState.of(context)!.dataNotifier.genre,
-                    items: ['All'] + genreStringMap.values.toList(),
-                    onChanged: (genre) =>
-                        AppState.of(context)!.dataNotifier.genre = genre,
-                  ),
-                  const SizedBox(width: 24),
-                  Picker(
-                    defaultText:
-                        AppState.of(context)!.dataNotifier.type == 'All'
-                            ? 'Type'
-                            : AppState.of(context)!.dataNotifier.type,
-                    items: ['All'] + typeStringMap.values.toList(),
-                    onChanged: (type) =>
-                        AppState.of(context)!.dataNotifier.type = type,
-                  ),
-                  const SizedBox(width: 24),
-                  const FintaActionChip(),
-                ],
-              ),
+              child: CateogryActionChips(),
             ),
             const Positioned(
               bottom: 20,
               left: 0,
               right: 0,
               child: Center(
-                child: SizedBox(
-                  width: 200,
-                  child: NavMenu(
-                    appview: AppView.list,
-                  ),
+                child: NavMenu(
+                  appview: AppView.list,
                 ),
               ),
             ),
