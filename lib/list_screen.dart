@@ -4,6 +4,7 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
 import 'package:ymyr/cateogry_menu.dart';
+import 'package:ymyr/event_profile.dart';
 import 'package:ymyr/main.dart';
 import 'package:ymyr/map_screen.dart';
 import 'package:ymyr/nav_menu.dart';
@@ -84,14 +85,16 @@ class _ListScreenState extends State<ListScreen> {
                 itemBuilder: (context, index) {
                   final item = widget.data[index];
                   return Padding(
-                    padding: EdgeInsets.only(
-                      top: index == 0 ? 64.0 : 16.0,
-                      bottom: index == widget.data.length - 1 ? 72.0 : 16.0,
-                      left: 16.0,
-                      right: 16.0,
-                    ),
-                    child: ArtistProfile(artist: item, showCloseButton: false),
-                  );
+                      padding: EdgeInsets.only(
+                        top: index == 0 ? 64.0 : 16.0,
+                        bottom: index == widget.data.length - 1 ? 72.0 : 16.0,
+                        left: 16.0,
+                        right: 16.0,
+                      ),
+                      child: AppState.of(context)!.dataNotifier.category ==
+                              Category.artist
+                          ? ArtistProfile(artist: item, showCloseButton: false)
+                          : EventProfile(event: item, showCloseButton: false));
                 },
               ),
             ),

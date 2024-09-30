@@ -7,6 +7,7 @@ import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:ymyr/event_profile.dart';
 
 class OSMFlutterMap extends StatefulWidget {
   const OSMFlutterMap({super.key});
@@ -18,7 +19,6 @@ class OSMFlutterMap extends StatefulWidget {
 class _OSMFlutterMapState extends State<OSMFlutterMap> {
   final MapController mapController = MapController();
 
-  late List<ParseObject> data;
   late LatLng initialCenter;
   late LatLngBounds bounds;
 
@@ -52,14 +52,14 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
     setState(() {});
   }
 
-  Marker drawMarker(ParseObject entry) {
+  Marker drawMarker(ParseObject entry, Category cat) {
     ParseGeoPoint point = entry['Coordinates'];
     final double latitude = point.latitude;
     final double longitude = point.longitude;
 
     return Marker(
       point: LatLng(latitude, longitude),
-      builder: (context) => CustomMarker(data: entry),
+      builder: (context) => CustomMarker(data: entry, category: cat),
     );
   }
 
@@ -131,7 +131,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
                   maxClusterRadius: 45,
                   size: const Size(40, 40),
                   markers: data.map((entry) {
-                    return drawMarker(entry);
+                    return drawMarker(entry, state.category);
                   }).toList(),
                   builder: (context, markers) {
                     return Container(
@@ -207,10 +207,12 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
 
 class CustomMarker extends StatelessWidget {
   final ParseObject data;
+  final Category category;
 
   const CustomMarker({
     super.key,
     required this.data,
+    required this.category,
   });
 
   @override
@@ -225,10 +227,10 @@ class CustomMarker extends StatelessWidget {
             ),
             contentPadding: EdgeInsets.zero,
             content: Column(
-              mainAxisSize:
-                  MainAxisSize.min, // Ensures the height is based on content
+              mainAxisSize: MainAxisSize.min,
               children: [
-                ArtistProfile(artist: data),
+                if (category == Category.artist) ArtistProfile(artist: data),
+                if (category == Category.event) EventProfile(event: data)
               ],
             ),
           );
