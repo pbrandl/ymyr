@@ -101,16 +101,7 @@ class _ListScreenState extends State<ListScreen> {
               left: 50,
               child: CateogryActionChips(),
             ),
-            const Positioned(
-              bottom: 20,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: NavMenu(
-                  appview: AppView.list,
-                ),
-              ),
-            ),
+            const NavMenu(appview: AppView.list),
           ],
         ),
       ),

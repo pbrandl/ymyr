@@ -49,14 +49,14 @@ class _NavMenuState extends State<NavMenu> {
   Widget build(BuildContext context) {
     final state = AppState.of(context)!;
 
-    return Column(
-      children: [
-        if (filterOn)
-          Positioned(
-            bottom: 70,
-            right: 50,
-            left: 50,
-            child: Row(
+    return Positioned(
+      bottom: 20,
+      left: 0,
+      right: 0,
+      child: Column(
+        children: [
+          if (filterOn)
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Picker(
@@ -80,98 +80,103 @@ class _NavMenuState extends State<NavMenu> {
                 const FintaActionChip(),
               ],
             ),
+          const SizedBox(height: 8),
+          Center(
+            child: SizedBox(
+                width: 240,
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          filterOn = !filterOn;
+                        });
+                      },
+                      child: Container(
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            bottomLeft: Radius.circular(15.0),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.filter_alt,
+                              size: 16,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              "Filter",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (widget.appview != AppView.list) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ListScreen(data: state.current),
+                            ),
+                          );
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.black),
+                            bottom: BorderSide(color: Colors.black),
+                            right: BorderSide(color: Colors.black),
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0),
+                          ),
+                        ),
+                        height: 40,
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              widget.appview != AppView.list
+                                  ? Icons.list
+                                  : Icons.map,
+                              size: 16,
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Text(
+                              widget.appview != AppView.list ? "List" : "Map",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ])),
           ),
-        const SizedBox(height: 16),
-        SizedBox(
-            width: 240,
-            child: Row(children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      filterOn = !filterOn;
-                    });
-                  },
-                  child: Container(
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(15.0),
-                        bottomLeft: Radius.circular(15.0),
-                      ),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.filter_alt,
-                          size: 16,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          "Filter",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    if (widget.appview != AppView.list) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ListScreen(data: state.current),
-                        ),
-                      );
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        top: BorderSide(color: Colors.black),
-                        bottom: BorderSide(color: Colors.black),
-                        right: BorderSide(color: Colors.black),
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(15.0),
-                        topRight: Radius.circular(15.0),
-                      ),
-                    ),
-                    height: 40,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          widget.appview != AppView.list
-                              ? Icons.list
-                              : Icons.map,
-                          size: 16,
-                        ),
-                        const SizedBox(
-                          width: 8,
-                        ),
-                        Text(
-                          widget.appview != AppView.list ? "List" : "Map",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ])),
-      ],
+        ],
+      ),
     );
   }
 }

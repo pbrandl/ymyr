@@ -110,15 +110,8 @@ class _MapScreenState extends State<MapScreen> {
           left: 50,
           child: CateogryActionChips(),
         ),
-        Positioned(
-          bottom: 20,
-          right: 0,
-          left: 0,
-          child: Center(
-            child: NavMenu(
-              appview: AppView.map,
-            ),
-          ),
+        NavMenu(
+          appview: AppView.map,
         ),
         SideBarNotch(),
       ]),
