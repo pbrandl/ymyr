@@ -77,25 +77,22 @@ class _ListScreenState extends State<ListScreen> {
       body: Center(
         child: Stack(
           children: [
-            Expanded(
-              child: SizedBox(
-                width: 400,
-                child: ListView.builder(
-                  itemCount: widget.data.length,
-                  itemBuilder: (context, index) {
-                    final item = widget.data[index];
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        top: index == 0 ? 64.0 : 16.0,
-                        bottom: index == widget.data.length - 1 ? 72.0 : 16.0,
-                        left: 16.0,
-                        right: 16.0,
-                      ),
-                      child:
-                          ArtistProfile(artist: item, showCloseButton: false),
-                    );
-                  },
-                ),
+            SizedBox(
+              width: 400,
+              child: ListView.builder(
+                itemCount: widget.data.length,
+                itemBuilder: (context, index) {
+                  final item = widget.data[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      top: index == 0 ? 64.0 : 16.0,
+                      bottom: index == widget.data.length - 1 ? 72.0 : 16.0,
+                      left: 16.0,
+                      right: 16.0,
+                    ),
+                    child: ArtistProfile(artist: item, showCloseButton: false),
+                  );
+                },
               ),
             ),
             const Positioned(
