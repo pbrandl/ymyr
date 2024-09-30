@@ -3,23 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class EventProfile extends StatelessWidget {
-  final ParseObject event;
+class StationProfile extends StatelessWidget {
+  final ParseObject station;
   final bool showCloseButton;
 
-  const EventProfile({
+  const StationProfile({
     super.key,
-    required this.event,
+    required this.station,
     this.showCloseButton = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate =
-        '${event['Start'].day.toString().padLeft(2, '0')}.' // dd
-        '${event['Start'].month.toString().padLeft(2, '0')}.' // MM
-        '${event['Start'].year.toString().substring(2)}'; // yy
-
     return SingleChildScrollView(
       padding: EdgeInsets.zero,
       child: Container(
@@ -36,11 +31,10 @@ class EventProfile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CupertinoChip(
-                      label: event['LocationName'], color: Colors.yellow),
+                  CupertinoChip(label: station['City'], color: Colors.yellow),
                   Container(
                     decoration: BoxDecoration(border: Border.all()),
-                    child: event['Image'] == null
+                    child: station['Image'] == null
                         ? Container(
                             height: 200,
                             width: double.infinity,
@@ -55,7 +49,7 @@ class EventProfile extends StatelessWidget {
                             height: 200,
                             width: double.infinity,
                             child: Image.network(
-                              event['Image']!.url,
+                              station['Image']!.url,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -63,23 +57,23 @@ class EventProfile extends StatelessWidget {
                   Row(
                     children: [
                       CupertinoChip(
-                        label: formattedDate,
+                        label: station['Genre'],
                         color: Colors.lightBlue,
                       ),
                       const SizedBox(width: 16),
-                      CupertinoChip(label: event['Type']),
+                      CupertinoChip(label: station['Type']),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    event['Name'],
+                    station['Name'],
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    event['Description'],
+                    station['Description'],
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -88,7 +82,7 @@ class EventProfile extends StatelessWidget {
                       const Icon(Icons.play_arrow_outlined),
                       OpenUrlWidget(
                         label: 'Listen via Stream',
-                        url: event['Link'],
+                        url: station['Link'],
                       )
                     ],
                   ),

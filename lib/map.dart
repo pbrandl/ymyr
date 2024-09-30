@@ -8,6 +8,7 @@ import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ymyr/event_profile.dart';
+import 'package:ymyr/station_profile.dart';
 
 class OSMFlutterMap extends StatefulWidget {
   const OSMFlutterMap({super.key});
@@ -230,7 +231,8 @@ class CustomMarker extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (category == Category.artist) ArtistProfile(artist: data),
-                if (category == Category.event) EventProfile(event: data)
+                if (category == Category.event) EventProfile(event: data),
+                if (category == Category.station) StationProfile(station: data)
               ],
             ),
           );
