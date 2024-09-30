@@ -78,7 +78,7 @@ class _ListScreenState extends State<ListScreen> {
           children: [
             ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 400.0,
+                maxWidth: 400,
               ),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 48.0),
