@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/artist_profile.dart';
+import 'package:ymyr/cateogry_menu.dart';
 import 'package:ymyr/main.dart';
 import 'package:ymyr/map_screen.dart';
 import 'package:ymyr/nav_menu.dart';
@@ -99,7 +100,7 @@ class _ListScreenState extends State<ListScreen> {
               top: 20,
               right: 50,
               left: 50,
-              child: CateogryActionChips(),
+              child: CateogryMenu(),
             ),
             const NavMenu(appview: AppView.list),
           ],
