@@ -207,13 +207,17 @@ class _CreateStationState extends State<CreateStation> {
           wantsToShareStation
               ? TextInput(
                   headline: "Link your Station",
-                  labelText: "Please provide a link to your station",
+                  desc:
+                      "YMYR makes local community radios visible. Please provide a link and your email and we'll be in touch to help you set things up!",
+                  labelText: "Link",
                   nameController: _streamLinkController,
                   goToNextPage: _goToNextPage,
                   goToPreviousPage: _goToPreviousPage,
                 )
               : TextInput(
                   headline: "Link a Playlist",
+                  desc:
+                      "YMYR enables you to share your playlists from spotify and turns them into public streams. Follow these steps to set it up!",
                   labelText: "Please provide a link to a spotify playlist",
                   nameController: _streamLinkController,
                   goToNextPage: _goToNextPage,
@@ -269,6 +273,8 @@ class TextInput extends StatefulWidget {
   final VoidCallback goToNextPage;
   final bool isLast;
 
+  final String? desc;
+
   const TextInput({
     super.key,
     required this.headline,
@@ -277,6 +283,7 @@ class TextInput extends StatefulWidget {
     required this.goToNextPage,
     required this.goToPreviousPage,
     this.isLast = false,
+    this.desc,
   });
 
   @override
@@ -326,6 +333,8 @@ class _TextInputState extends State<TextInput> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 32),
+              if (widget.desc != null) Text(widget.desc!),
+              const SizedBox(height: 16),
               TextField(
                 controller: widget.nameController,
                 focusNode: _focusNode,
@@ -629,7 +638,7 @@ class SuccessScreenState extends State<SuccessScreen> {
                 height: 16,
               ),
               const Text(
-                  " Thank You! We’ve received your submission and will be in touch as soon as your radio stream is available. Pls check your spam just in case. It might take us 1 day to get back to you."),
+                  "Thank You! We’ve received your submission and will be in touch as soon as your radio stream is available. Pls check your spam just in case. It might take us 1 day to get back to you."),
               const SizedBox(
                 height: 32,
               ),

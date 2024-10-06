@@ -212,6 +212,8 @@ class _CreateArtistState extends State<CreateArtist> {
           ),
           FullscreenPicker(
             headline: "Select your city",
+            desc:
+                "Please select the music scene that you're from and place yourself on the map in the next step. This doesn't need to be your home address, but maybe it makes sense to place yourself in your neighborhood, or where your studio is. You're free to choose.",
             initalSelection: selectedCity,
             items: cities,
             onChanged: (int value) {
@@ -513,6 +515,8 @@ class FullscreenPicker extends StatefulWidget {
 
   final String headline;
 
+  final String? desc;
+
   const FullscreenPicker({
     super.key,
     required this.items,
@@ -521,6 +525,7 @@ class FullscreenPicker extends StatefulWidget {
     required this.goToNextPage,
     required this.initalSelection,
     required this.headline,
+    this.desc,
   });
 
   @override
@@ -544,7 +549,7 @@ class FullscreenPickerState extends State<FullscreenPicker> {
         Center(
           child: SizedBox(
             width: 400,
-            height: 450,
+            height: 570,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,6 +558,9 @@ class FullscreenPickerState extends State<FullscreenPicker> {
                   widget.headline,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
+                const SizedBox(height: 16),
+                if (widget.desc != null) Text(widget.desc!),
+                const SizedBox(height: 16),
                 SizedBox(
                   height: 400,
                   child: CupertinoPicker(
