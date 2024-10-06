@@ -98,12 +98,9 @@ class _SideBarNotchState extends State<SideBarNotch>
                       ),
                     ),
                     child: Center(
-                      child: Transform.rotate(
-                        angle: -90 * (3.1415926535897932 / 180),
-                        child: const Text(
-                          "YMYR",
-                        ),
-                      ),
+                      child: !isSidebarOpenedAsync.data!
+                          ? const Icon(Icons.chevron_left)
+                          : const Icon(Icons.chevron_right),
                     )),
               ),
               Expanded(

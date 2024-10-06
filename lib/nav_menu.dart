@@ -97,25 +97,61 @@ class _NavMenuState extends State<NavMenu> {
                         height: 40,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppState.of(context)!.dataNotifier.type !=
+                                      'All' ||
+                                  AppState.of(context)!.dataNotifier.genre !=
+                                      'All' ||
+                                  AppState.of(context)!.dataNotifier.finta !=
+                                      false
+                              ? const Color.fromRGBO(193, 255, 114, 1)
+                              : Colors.white,
                           border: Border.all(),
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(15.0),
                             bottomLeft: Radius.circular(15.0),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.filter_alt,
                               size: 16,
                             ),
-                            SizedBox(width: 8),
-                            Text(
+                            const SizedBox(width: 8),
+                            const Text(
                               "Filter",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
+                            const SizedBox(width: 8),
+                            if (AppState.of(context)!.dataNotifier.type !=
+                                    'All' ||
+                                AppState.of(context)!.dataNotifier.genre !=
+                                    'All' ||
+                                AppState.of(context)!.dataNotifier.finta !=
+                                    false)
+                              IconButton.outlined(
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                padding: const EdgeInsets.all(0),
+                                iconSize: 16,
+                                icon: const Icon(
+                                  Icons.close,
+                                ),
+                                onPressed: () {
+                                  AppState.of(context)!.dataNotifier.type =
+                                      'All';
+                                  AppState.of(context)!.dataNotifier.genre =
+                                      'All';
+                                  AppState.of(context)!.dataNotifier.finta =
+                                      false;
+                                  setState(() {
+                                    filterOn = !filterOn;
+                                  });
+                                },
+                              ),
                           ],
                         ),
                       ),
@@ -176,6 +212,69 @@ class _NavMenuState extends State<NavMenu> {
                 ])),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FintaActionChip extends StatefulWidget {
+  const FintaActionChip({super.key});
+
+  @override
+  State<FintaActionChip> createState() => _FintaActionChipState();
+}
+
+class _FintaActionChipState extends State<FintaActionChip> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final state = AppState.of(context)!;
+    state.dataNotifier.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    final state = AppState.of(context);
+    if (state != null) {
+      state.dataNotifier.removeListener(update);
+    }
+    super.dispose();
+  }
+
+  void update() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      clipBehavior: Clip.antiAlias,
+      labelPadding: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      onPressed: () {
+        AppState.of(context)!.dataNotifier.finta =
+            !AppState.of(context)!.dataNotifier.finta;
+      },
+      label: Container(
+        width: 76,
+        height: 36,
+        decoration: BoxDecoration(
+            color: !AppState.of(context)!.dataNotifier.finta
+                ? Colors.transparent
+                : Theme.of(context).primaryColor),
+        child: Center(
+          child: Text(
+            'Finta',
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              color: !AppState.of(context)!.dataNotifier.finta
+                  ? Colors.black
+                  : Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }

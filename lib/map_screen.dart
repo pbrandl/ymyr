@@ -83,7 +83,7 @@ class _MapScreenState extends State<MapScreen> {
                   : AppState.of(context)!.dataNotifier.category ==
                           Category.artist
                       ? "ARTISTS IN"
-                      : "STATIONS IN",
+                      : "RADIOS IN",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(

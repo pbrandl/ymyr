@@ -55,7 +55,7 @@ class _ListScreenState extends State<ListScreen> {
                   : AppState.of(context)!.dataNotifier.category ==
                           Category.artist
                       ? "ARTISTS IN"
-                      : "STATIONS IN",
+                      : "RADIOS IN",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(

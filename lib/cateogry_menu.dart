@@ -110,7 +110,7 @@ class _CateogryMenuState extends State<CateogryMenu> {
             ),
             child: Center(
               child: Text(
-                'Stations',
+                'Radios',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 14,

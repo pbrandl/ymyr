@@ -133,14 +133,14 @@ class _CreateStationState extends State<CreateStation> {
     super.dispose();
   }
 
-  Future<void> uploadArtistData() async {
+  Future<void> uploadData() async {
     LatLng? coord = AppState.of(context)!.locationNotifier.center;
     ParseGeoPoint geoPoint =
         ParseGeoPoint(latitude: coord.latitude, longitude: coord.longitude);
 
     final station;
     if (wantsToShareStation) {
-      station = ParseObject('Sessions')
+      station = ParseObject('Radios')
         ..set('Link', _streamLinkController.text)
         ..set('Mail', _mailController.text);
     } else {
@@ -164,7 +164,7 @@ class _CreateStationState extends State<CreateStation> {
   void _uploadHandler() {
     setState(() => isUploading = true);
 
-    uploadArtistData().then((_) {
+    uploadData().then((_) {
       _goToNextPage();
     }).catchError(
       (e) {
@@ -221,11 +221,12 @@ class _CreateStationState extends State<CreateStation> {
                 ),
           wantsToShareStation
               ? TextInput(
+                  isLast: true,
                   headline: "E-Mail",
                   labelText:
                       "Please provide a email address where we can reach you",
                   nameController: _mailController,
-                  goToNextPage: _goToNextPage,
+                  goToNextPage: _uploadHandler,
                   goToPreviousPage: _goToPreviousPage,
                 )
               : TextInput(
@@ -246,6 +247,7 @@ class _CreateStationState extends State<CreateStation> {
             ),
           if (!wantsToShareStation)
             TextInput(
+              isLast: true,
               headline: "Your e-mail (not public)",
               labelText: "Please provide your mail",
               nameController: _mailController,
@@ -265,6 +267,7 @@ class TextInput extends StatefulWidget {
   final TextEditingController nameController;
   final VoidCallback goToPreviousPage;
   final VoidCallback goToNextPage;
+  final bool isLast;
 
   const TextInput({
     super.key,
@@ -273,6 +276,7 @@ class TextInput extends StatefulWidget {
     required this.nameController,
     required this.goToNextPage,
     required this.goToPreviousPage,
+    this.isLast = false,
   });
 
   @override
@@ -357,7 +361,9 @@ class _TextInputState extends State<TextInput> {
                         ? widget.goToNextPage
                         : null,
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text("Next"),
+                    label: widget.isLast
+                        ? const Text("Submit")
+                        : const Text("Next"),
                     iconAlignment: IconAlignment.end,
                   ),
                 ],

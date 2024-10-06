@@ -110,49 +110,6 @@ class _HomeState extends State<Home> {
   }
 }
 
-class FintaActionChip extends StatefulWidget {
-  const FintaActionChip({super.key});
-
-  @override
-  State<FintaActionChip> createState() => _FintaActionChipState();
-}
-
-class _FintaActionChipState extends State<FintaActionChip> {
-  bool toggle = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return ActionChip(
-      clipBehavior: Clip.antiAlias,
-      labelPadding: EdgeInsets.zero,
-      padding: EdgeInsets.zero,
-      onPressed: () {
-        setState(() {
-          toggle = !toggle;
-        });
-        AppState.of(context)!.dataNotifier.finta = toggle;
-      },
-      label: Container(
-        width: 76,
-        height: 36,
-        decoration: BoxDecoration(
-            color:
-                !toggle ? Colors.transparent : Theme.of(context).primaryColor),
-        child: Center(
-          child: Text(
-            'Finta',
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14,
-              color: !toggle ? Colors.black : Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class MarqueeWidget extends StatefulWidget {
   final Widget child;
   final Axis direction;

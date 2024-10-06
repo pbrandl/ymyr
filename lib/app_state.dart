@@ -224,7 +224,7 @@ class DataNotifier extends ChangeNotifier {
 
   Future<void> fetchStations() async {
     final QueryBuilder<ParseObject> queryArtists =
-        QueryBuilder<ParseObject>(ParseObject('Sessions'))
+        QueryBuilder<ParseObject>(ParseObject('Radios'))
           ..whereEqualTo('Approved', true);
 
     final ParseResponse response = await queryArtists.query();
