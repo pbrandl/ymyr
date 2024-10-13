@@ -245,10 +245,13 @@ class CustomMarker extends StatelessWidget {
             : category == Category.event
                 ? const Color.fromRGBO(194, 255, 115, 1)
                 : const Color.fromRGBO(255, 234, 0, 1),
-        child: const Text(
+        child: Text(
           'Y',
           style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white),
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+              color:
+                  category == Category.station ? Colors.black : Colors.white),
         ),
       ),
     );
