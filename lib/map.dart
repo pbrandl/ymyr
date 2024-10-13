@@ -250,8 +250,7 @@ class CustomMarker extends StatelessWidget {
           style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 10,
-              color:
-                  category == Category.station ? Colors.black : Colors.white),
+              color: category != Category.artist ? Colors.black : Colors.white),
         ),
       ),
     );
