@@ -5,9 +5,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:ymyr/animated_icon.dart';
 import 'package:ymyr/app_state.dart';
-import 'package:ymyr/artist_profile.dart';
+import 'package:ymyr/profile_artist.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:ymyr/event_profile.dart';
+import 'package:ymyr/profile_event.dart';
+import 'package:ymyr/profile_radio.dart';
 import 'package:ymyr/station_profile.dart';
 
 class OSMFlutterMap extends StatefulWidget {
@@ -232,14 +233,18 @@ class CustomMarker extends StatelessWidget {
               children: [
                 if (category == Category.artist) ArtistProfile(artist: data),
                 if (category == Category.event) EventProfile(event: data),
-                if (category == Category.station) StationProfile(station: data)
+                if (category == Category.station) RadioProfile(radio: data)
               ],
             ),
           );
         },
       ),
       child: CircleAvatar(
-        backgroundColor: Theme.of(context).cardColor,
+        backgroundColor: category == Category.artist
+            ? Theme.of(context).cardColor
+            : category == Category.event
+                ? const Color.fromRGBO(194, 255, 115, 1)
+                : const Color.fromRGBO(255, 234, 0, 1),
         child: const Text(
           'Y',
           style: TextStyle(
