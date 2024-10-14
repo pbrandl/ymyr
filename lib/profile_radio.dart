@@ -66,7 +66,7 @@ class RadioProfile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    radio['Name'],
+                    radio['RadioName'],
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
