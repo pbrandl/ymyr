@@ -20,13 +20,13 @@ class CreateArtist extends StatefulWidget {
 }
 
 class _CreateArtistState extends State<CreateArtist> {
+  late NavigatorState _navigator;
+
   final PageController _pageController = PageController();
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
   final TextEditingController _mailController = TextEditingController();
 
-  final TextEditingController _cityController = TextEditingController();
   final TextEditingController _streamLinkController = TextEditingController();
 
   List<String> genres = genreStringMap.values.toList();
@@ -57,7 +57,6 @@ class _CreateArtistState extends State<CreateArtist> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     selectedCity =
         cityStringMap.keys.toList().indexOf(AppState.of(context)!.city);
   }
@@ -71,10 +70,10 @@ class _CreateArtistState extends State<CreateArtist> {
 
       if (_pageController.page?.toInt() == 4) {
         debugPrint(_pageController.page?.toInt().toString());
-        AppState.of(context)!.mode = true;
+        if (mounted) AppState.of(context)!.mode = true;
       } else {
         debugPrint(_pageController.page?.toInt().toString());
-        AppState.of(context)!.mode = false;
+        if (mounted) AppState.of(context)!.mode = false;
       }
     }
   }
@@ -142,7 +141,7 @@ class _CreateArtistState extends State<CreateArtist> {
     }).catchError(
       (e) {
         _showErrorDialog(e);
-        setState(() => isUploading = true);
+        setState(() => isUploading = false);
       },
     );
   }
@@ -634,6 +633,15 @@ class SuccessScreenState extends State<SuccessScreen> {
   }
 
   @override
+  void dispose() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const Home()),
+      (Route<dynamic> route) => false,
+    );
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -665,10 +673,7 @@ class SuccessScreenState extends State<SuccessScreen> {
               Center(
                 child: FilledButton(
                     onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const Home()),
-                        (Route<dynamic> route) => false,
-                      );
+                      dispose();
                     },
                     child: const Text("Home")),
               )
@@ -805,8 +810,11 @@ class Info extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                "The YMYR artist map is an open infrastructure to make artists visible and discoverable. To add yourself to the map, please follow these 3 simple steps to submit a profile request. We will then contact you via email to complete your profile.",
+                "The YMYR artist map is an open infrastructure to makes artists and local music scenes visible and discoverable. If you are an artists and would like to list your profile on YMYR, please follow these simple steps to submit a profile request.",
               ),
+              const SizedBox(height: 8),
+              const Text(
+                  "We will then contact you via email to complete your profile."),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

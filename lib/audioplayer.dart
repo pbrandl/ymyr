@@ -2,8 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class AudioPlayerWidget extends StatefulWidget {
-  final String url =
-      "https://parsefiles.back4app.com/yUVvb4hLLk2P2RlCdblresCpTPgV69ZxCtMcXb1u/c77c52122d264875249e33c0bddba079_SoundHelix-Song-1.mp3";
+  final String url = "https://azuracast.gatekeeperradio.com:8000/radio.mp3";
 
   final AudioPlayer player;
 

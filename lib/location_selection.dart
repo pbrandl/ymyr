@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ymyr/app_state.dart';
-import 'package:ymyr/main.dart';
 import 'package:ymyr/map_screen.dart';
 
 class LocationSelection extends StatelessWidget {
@@ -15,7 +14,7 @@ class LocationSelection extends StatelessWidget {
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => MapScreen(),
+          builder: (context) => const MapScreen(),
         ),
       );
     }
