@@ -51,7 +51,6 @@ class _HomeState extends State<Home> {
     _menuNotifier.addListener(_update);
     _audioNotifier = AudioNotifier();
     _audioNotifier.addListener(_update);
-
     super.initState();
   }
 
@@ -78,7 +77,7 @@ class _HomeState extends State<Home> {
       locationNotifier: _locationNotifier,
       dataNotifier: _dataNotifier,
       menuNotifier: _menuNotifier,
-      // audioNotifier: _audioNotifier,
+      audioNotifier: _audioNotifier,
       child: MaterialApp(
         theme: CustomTheme.generateTheme(Color.fromARGB(255, 119, 106, 194)),
         title: 'YMYR',

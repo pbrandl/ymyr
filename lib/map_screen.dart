@@ -25,6 +25,7 @@ class _MapScreenState extends State<MapScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     AppState.of(context)!.dataNotifier.addListener(_updateState);
+    AppState.of(context)!.audioNotifier.addListener(_updateState);
   }
 
   void _updateState() {
@@ -34,6 +35,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void dispose() {
     AppState.of(context)!.dataNotifier.removeListener(_updateState);
+    AppState.of(context)!.audioNotifier.removeListener(_updateState);
     super.dispose();
   }
 
@@ -43,19 +45,19 @@ class _MapScreenState extends State<MapScreen> {
       bottomNavigationBar: Container(
           height: 50,
           color: Theme.of(context).canvasColor,
-          child: const Row(
+          child: Row(
             children: [
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ControlButtons(),
+                  ControlButtons(),
                 ],
               ),
               Expanded(
                 child: TextScroll(
-                  "RADIO SHOW <NAME> If this text is to long to be shown in just one line, it moves from right to left.",
-                  velocity: Velocity(
+                  AppState.of(context)!.audioNotifier.radioName,
+                  velocity: const Velocity(
                     pixelsPerSecond: Offset(40, 0),
                   ),
                   intervalSpaces: 50,
@@ -114,66 +116,66 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-// /// Displays the play/pause button and volume/speed sliders.
-// class ControlButtons extends StatefulWidget {
-//   const ControlButtons({super.key});
+/// Displays the play/pause button and volume/speed sliders.
+class ControlButtons extends StatefulWidget {
+  const ControlButtons({super.key});
 
-//   @override
-//   State<ControlButtons> createState() => _ControlButtonsState();
-// }
+  @override
+  State<ControlButtons> createState() => _ControlButtonsState();
+}
 
-// class _ControlButtonsState extends State<ControlButtons> {
-//   @override
-//   void didChangeDependencies() {
-//     super.didChangeDependencies();
-//     AppState.of(context)!.audioNotifier.addListener(_updateState);
-//   }
+class _ControlButtonsState extends State<ControlButtons> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AppState.of(context)!.audioNotifier.addListener(_updateState);
+  }
 
-//   void _updateState() {
-//     if (mounted) setState(() {});
-//   }
+  void _updateState() {
+    if (mounted) setState(() {});
+  }
 
-//   @override
-//   void dispose() {
-//     super.dispose();
-//   }
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
-//   // void didChangeAppLifecycleState(AppLifecycleState state) {
-//   //   if (state == AppLifecycleState.paused) {
-//   //     // Release the player's resources when not in use. We use "stop" so that
-//   //     // if the app resumes later, it will still remember what position to
-//   //     // resume from.
-//   //     AppState.of(context)!.audioNotifier.player.stop();
-//   //   }
-//   // }
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Release the player's resources when not in use. We use "stop" so that
+      // if the app resumes later, it will still remember what position to
+      // resume from.
+      AppState.of(context)!.audioNotifier.player.stop();
+    }
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       mainAxisSize: MainAxisSize.min,
-//       children: [
-//         StreamBuilder<PlayerState>(
-//           stream: AppState.of(context)!.audioNotifier.player.playerStateStream,
-//           builder: (context, snapshot) {
-//             final playerState = snapshot.data;
-//             final playing = playerState?.playing;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        StreamBuilder<PlayerState>(
+          stream: AppState.of(context)!.audioNotifier.player.playerStateStream,
+          builder: (context, snapshot) {
+            final playerState = snapshot.data;
+            final playing = playerState?.playing;
 
-//             if (playing != true) {
-//               return IconButton(
-//                 icon: const Icon(Icons.play_arrow),
-//                 iconSize: 32.0,
-//                 onPressed: AppState.of(context)!.audioNotifier.player.play,
-//               );
-//             } else {
-//               return IconButton(
-//                 icon: const Icon(Icons.pause),
-//                 iconSize: 32.0,
-//                 onPressed: AppState.of(context)!.audioNotifier.player.pause,
-//               );
-//             }
-//           },
-//         ),
-//       ],
-//     );
-//   }
-// }
+            if (playing != true) {
+              return IconButton(
+                icon: const Icon(Icons.play_arrow),
+                iconSize: 32.0,
+                onPressed: AppState.of(context)!.audioNotifier.player.play,
+              );
+            } else {
+              return IconButton(
+                icon: const Icon(Icons.pause),
+                iconSize: 32.0,
+                onPressed: AppState.of(context)!.audioNotifier.player.pause,
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+}

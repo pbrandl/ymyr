@@ -23,10 +23,8 @@ class _CreateArtistState extends State<CreateArtist> {
   final PageController _pageController = PageController();
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
   final TextEditingController _mailController = TextEditingController();
 
-  final TextEditingController _cityController = TextEditingController();
   final TextEditingController _streamLinkController = TextEditingController();
 
   List<String> genres = genreStringMap.values.toList();

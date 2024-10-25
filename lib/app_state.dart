@@ -40,7 +40,7 @@ class AppState extends InheritedWidget {
   final LocationNotifier locationNotifier;
   final DataNotifier dataNotifier;
   final MenuNotifier menuNotifier;
-  // final AudioNotifier audioNotifier;
+  final AudioNotifier audioNotifier;
 
   List<ParseObject> get filtered => dataNotifier.current;
   Category get category => dataNotifier.category;
@@ -63,7 +63,7 @@ class AppState extends InheritedWidget {
     required this.locationNotifier,
     required this.dataNotifier,
     required this.menuNotifier,
-    // required this.audioNotifier,
+    required this.audioNotifier,
   });
 
   static AppState? of(BuildContext context) {
@@ -287,6 +287,7 @@ class AudioNotifier extends ChangeNotifier with WidgetsBindingObserver {
       print("Error loading audio source: $e");
     }
     player.play();
+    notifyListeners();
   }
 
   Future<void> _initPlayer() async {
@@ -305,6 +306,7 @@ class AudioNotifier extends ChangeNotifier with WidgetsBindingObserver {
     } on PlayerException catch (e) {
       print("Error loading audio source: $e");
     }
+    notifyListeners();
   }
 
   AudioNotifier() {
@@ -315,14 +317,14 @@ class AudioNotifier extends ChangeNotifier with WidgetsBindingObserver {
     _initPlayer();
   }
 
-  // @override
-  // void dispose() {
-  //   ambiguate(WidgetsBinding.instance)!.removeObserver(this);
-  //   // Release decoders and buffers back to the operating system making them
-  //   // available for other apps to use.
-  //   _player.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    ambiguate(WidgetsBinding.instance)!.removeObserver(this);
+    // Release decoders and buffers back to the operating system making them
+    // available for other apps to use.
+    _player.dispose();
+    super.dispose();
+  }
 }
 
 T? ambiguate<T>(T? value) => value;
