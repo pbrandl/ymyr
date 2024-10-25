@@ -21,11 +21,18 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
   }
 
+  late LocationNotifier locationNotifier;
+  late DataNotifier dataNotifier;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    AppState.of(context)!.dataNotifier.addListener(_updateState);
-    AppState.of(context)!.audioNotifier.addListener(_updateState);
+    locationNotifier = AppState.of(context)!.locationNotifier;
+    dataNotifier = AppState.of(context)!.dataNotifier;
+
+    // Add listeners
+    locationNotifier.addListener(_updateState);
+    dataNotifier.addListener(_updateState);
   }
 
   void _updateState() {
@@ -34,8 +41,8 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    AppState.of(context)!.dataNotifier.removeListener(_updateState);
-    AppState.of(context)!.audioNotifier.removeListener(_updateState);
+    locationNotifier.removeListener(_updateState);
+    dataNotifier.removeListener(_updateState);
     super.dispose();
   }
 
@@ -69,7 +76,6 @@ class _MapScreenState extends State<MapScreen> {
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
-              dispose();
             },
             icon: const Icon(Icons.arrow_back)),
         title: Row(
@@ -137,6 +143,7 @@ class _ControlButtonsState extends State<ControlButtons> {
 
   @override
   void dispose() {
+    AppState.of(context)!.audioNotifier.removeListener(_updateState);
     super.dispose();
   }
 

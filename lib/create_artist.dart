@@ -20,6 +20,8 @@ class CreateArtist extends StatefulWidget {
 }
 
 class _CreateArtistState extends State<CreateArtist> {
+  late NavigatorState _navigator;
+
   final PageController _pageController = PageController();
 
   final TextEditingController _nameController = TextEditingController();
@@ -55,7 +57,6 @@ class _CreateArtistState extends State<CreateArtist> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     selectedCity =
         cityStringMap.keys.toList().indexOf(AppState.of(context)!.city);
   }
@@ -69,10 +70,10 @@ class _CreateArtistState extends State<CreateArtist> {
 
       if (_pageController.page?.toInt() == 4) {
         debugPrint(_pageController.page?.toInt().toString());
-        AppState.of(context)!.mode = true;
+        if (mounted) AppState.of(context)!.mode = true;
       } else {
         debugPrint(_pageController.page?.toInt().toString());
-        AppState.of(context)!.mode = false;
+        if (mounted) AppState.of(context)!.mode = false;
       }
     }
   }
@@ -140,7 +141,7 @@ class _CreateArtistState extends State<CreateArtist> {
     }).catchError(
       (e) {
         _showErrorDialog(e);
-        setState(() => isUploading = true);
+        setState(() => isUploading = false);
       },
     );
   }
@@ -632,6 +633,15 @@ class SuccessScreenState extends State<SuccessScreen> {
   }
 
   @override
+  void dispose() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const Home()),
+      (Route<dynamic> route) => false,
+    );
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -663,10 +673,7 @@ class SuccessScreenState extends State<SuccessScreen> {
               Center(
                 child: FilledButton(
                     onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const Home()),
-                        (Route<dynamic> route) => false,
-                      );
+                      dispose();
                     },
                     child: const Text("Home")),
               )

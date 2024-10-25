@@ -9,7 +9,6 @@ import 'package:ymyr/profile_artist.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ymyr/profile_event.dart';
 import 'package:ymyr/profile_radio.dart';
-import 'package:ymyr/station_profile.dart';
 
 class OSMFlutterMap extends StatefulWidget {
   const OSMFlutterMap({super.key});
@@ -21,9 +20,6 @@ class OSMFlutterMap extends StatefulWidget {
 class _OSMFlutterMapState extends State<OSMFlutterMap> {
   final MapController mapController = MapController();
 
-  late LatLng initialCenter;
-  late LatLngBounds bounds;
-
   Position? userPosition;
 
   @override
@@ -31,27 +27,30 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
     super.initState();
   }
 
+  late LocationNotifier locationNotifier;
+  late DataNotifier dataNotifier;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final state = AppState.of(context)!;
-    state.locationNotifier.addListener(update);
-    state.dataNotifier.addListener(update);
+    locationNotifier = AppState.of(context)!.locationNotifier;
+    dataNotifier = AppState.of(context)!.dataNotifier;
+
+    locationNotifier.addListener(update);
+    dataNotifier.addListener(update);
   }
 
   @override
   void dispose() {
-    final state = AppState.of(context);
-    if (state != null) {
-      state.locationNotifier.removeListener(update);
-      state.dataNotifier.removeListener(update);
-    }
+    locationNotifier.removeListener(update);
+    dataNotifier.removeListener(update);
+    mapController.dispose();
     super.dispose();
   }
 
   void update() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   Marker drawMarker(ParseObject entry, Category cat) {
@@ -65,43 +64,22 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
     );
   }
 
+  void onPositionChanged(MapPosition position, bool hasGesture) {
+    if (AppState.of(context)!.mode) {
+      AppState.of(context)!.locationNotifier.setLocation(
+            position.center ?? AppState.of(context)!.center,
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final state = AppState.of(context)!;
-    final List<ParseObject> data = state.filtered;
-    final LatLng initialCenter = state.center;
-    final LatLngBounds bounds = state.bounds;
-
-    void onPositionChanged(MapPosition position, bool hasGesture) {
-      if (state.mode) {
-        state.locationNotifier.setLocation(
-          position.center ?? initialCenter,
-        );
-      }
-
-      // Bounds
-      // if (!bounds.contains(position.center!)) {
-      //   debugPrint(position.center.toString());
-
-      //   final newCenter = LatLng(
-      //     position.center!.latitude
-      //         .clamp(bounds.southWest.latitude, bounds.northEast.latitude),
-      //     position.center!.longitude
-      //         .clamp(bounds.southWest.longitude, bounds.northEast.longitude),
-      //   );
-
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     mapController.move(newCenter, position.zoom!);
-      //   });
-      // }
-    }
-
     return Stack(
       children: [
         FlutterMap(
           mapController: mapController,
           options: MapOptions(
-            center: initialCenter,
+            center: AppState.of(context)!.center,
             zoom: 14.0,
             minZoom: 8.0,
             maxZoom: 18.0,
@@ -114,27 +92,13 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
                   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
               subdomains: const ['a', 'b', 'c', 'd'],
             ),
-            // if (userPosition != null)
-            //   MarkerLayer(
-            //     markers: [
-            //       Marker(
-            //         width: 60.0,
-            //         height: 60.0,
-            //         point: LatLng(
-            //           userPosition!.latitude,
-            //           userPosition!.longitude,
-            //         ),
-            //         builder: (context) => const UserPositionMarker(),
-            //       ),
-            //     ],
-            //   ),
-            if (!state.mode)
+            if (!AppState.of(context)!.mode)
               MarkerClusterLayerWidget(
                 options: MarkerClusterLayerOptions(
                   maxClusterRadius: 45,
                   size: const Size(40, 40),
-                  markers: data.map((entry) {
-                    return drawMarker(entry, state.category);
+                  markers: AppState.of(context)!.filtered.map((entry) {
+                    return drawMarker(entry, AppState.of(context)!.category);
                   }).toList(),
                   builder: (context, markers) {
                     return Container(
@@ -153,7 +117,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
               ),
           ],
         ),
-        if (state.mode)
+        if (AppState.of(context)!.mode)
           const Positioned(
             top: 50,
             right: 50,
