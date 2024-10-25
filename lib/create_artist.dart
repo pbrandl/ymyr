@@ -40,7 +40,7 @@ class _CreateArtistState extends State<CreateArtist> {
   bool isUploading = false;
 
   Future<void> loadImageAsUint8List() async {
-    ByteData byteData = await rootBundle.load('images/placeholder.jpeg');
+    ByteData byteData = await rootBundle.load('assets/images/placeholder.jpeg');
 
     setState(() {
       webImage =

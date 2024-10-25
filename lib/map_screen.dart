@@ -75,7 +75,9 @@ class _MapScreenState extends State<MapScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.pop(context);
+              });
             },
             icon: const Icon(Icons.arrow_back)),
         title: Row(
