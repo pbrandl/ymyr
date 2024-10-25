@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ymyr/app_state.dart';
 
 class RadioProfile extends StatelessWidget {
   final ParseObject radio;
@@ -66,7 +67,7 @@ class RadioProfile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    radio['Type'],
+                    radio['RadioName'],
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -76,12 +77,27 @@ class RadioProfile extends StatelessWidget {
                     radio['Description'],
                   ),
                   const SizedBox(height: 8),
+                  // GestureDetector(
+                  //   onTap: () => AppState.of(context)!
+                  //       .audioNotifier
+                  //       .setRadio(radio['RadioName'], radio['Stream']),
+                  //   child: const Row(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //     children: [
+                  //       Icon(Icons.play_arrow_outlined),
+                  //       Text(
+                  //         'Play Radio',
+                  //       )
+                  //     ],
+                  //   ),
+                  // ),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.play_arrow_outlined),
                       OpenUrlWidget(
-                        label: 'Listen via Stream',
+                        label: 'Open in new tab',
                         url: radio['Link'],
                       )
                     ],

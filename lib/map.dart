@@ -79,20 +79,21 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
         );
       }
 
-      if (!bounds.contains(position.center!)) {
-        debugPrint(position.center.toString());
+      // Bounds
+      // if (!bounds.contains(position.center!)) {
+      //   debugPrint(position.center.toString());
 
-        final newCenter = LatLng(
-          position.center!.latitude
-              .clamp(bounds.southWest.latitude, bounds.northEast.latitude),
-          position.center!.longitude
-              .clamp(bounds.southWest.longitude, bounds.northEast.longitude),
-        );
+      //   final newCenter = LatLng(
+      //     position.center!.latitude
+      //         .clamp(bounds.southWest.latitude, bounds.northEast.latitude),
+      //     position.center!.longitude
+      //         .clamp(bounds.southWest.longitude, bounds.northEast.longitude),
+      //   );
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          mapController.move(newCenter, position.zoom!);
-        });
-      }
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     mapController.move(newCenter, position.zoom!);
+      //   });
+      // }
     }
 
     return Stack(
@@ -102,7 +103,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
           options: MapOptions(
             center: initialCenter,
             zoom: 14.0,
-            minZoom: 12.0,
+            minZoom: 8.0,
             maxZoom: 18.0,
             interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             onPositionChanged: onPositionChanged,

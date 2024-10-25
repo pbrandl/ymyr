@@ -869,7 +869,7 @@ class Info extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                "The YMYR event map is an open infrastructure that makes music events in your region visible. To add your event to the kalendar, please follow these 3 simple steps.",
+                "The YMYR event map is an open infrastructure that makes music events in your music scene visible. To add your event to the calendar, please follow these simple steps.",
               ),
               const SizedBox(height: 16),
               Row(

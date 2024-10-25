@@ -9,6 +9,7 @@ import 'package:ymyr/main.dart';
 import 'package:ymyr/map_screen.dart';
 import 'package:ymyr/nav_menu.dart';
 import 'package:ymyr/picker.dart';
+import 'package:ymyr/profile_radio.dart';
 
 class ListScreen extends StatefulWidget {
   final List<ParseObject> data;
@@ -91,10 +92,22 @@ class _ListScreenState extends State<ListScreen> {
                         left: 16.0,
                         right: 16.0,
                       ),
-                      child: AppState.of(context)!.dataNotifier.category ==
-                              Category.artist
-                          ? ArtistProfile(artist: item, showCloseButton: false)
-                          : EventProfile(event: item, showCloseButton: false));
+                      child: AppState.of(context)!.dataNotifier.category !=
+                              Category.event
+                          ? AppState.of(context)!.dataNotifier.category ==
+                                  Category.station
+                              ? RadioProfile(
+                                  radio: item,
+                                  showCloseButton: false,
+                                )
+                              : ArtistProfile(
+                                  artist: item,
+                                  showCloseButton: false,
+                                )
+                          : EventProfile(
+                              event: item,
+                              showCloseButton: false,
+                            ));
                 },
               ),
             ),

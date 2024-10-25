@@ -1,16 +1,13 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:text_scroll/text_scroll.dart';
-import 'package:ymyr/map_screen.dart';
-import 'package:ymyr/nav_menu.dart';
-import 'package:ymyr/picker.dart';
+
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/location_selection.dart';
-import 'package:ymyr/map.dart';
-import 'package:ymyr/player.dart';
-import 'package:ymyr/sidebar.dart';
+import 'package:ymyr/streamplayer.dart';
+
 import 'package:ymyr/theme.dart';
 
 void main() async {
@@ -41,6 +38,7 @@ class _HomeState extends State<Home> {
   late LocationNotifier _locationNotifier;
   late DataNotifier _dataNotifier;
   late MenuNotifier _menuNotifier;
+  late AudioNotifier _audioNotifier;
 
   @override
   void initState() {
@@ -51,6 +49,10 @@ class _HomeState extends State<Home> {
     _dataNotifier.addListener(_update);
     _menuNotifier = MenuNotifier();
     _menuNotifier.addListener(_update);
+    _audioNotifier = AudioNotifier();
+    _audioNotifier.addListener(_update);
+
+    super.initState();
   }
 
   @override
@@ -61,11 +63,13 @@ class _HomeState extends State<Home> {
     _dataNotifier.dispose();
     _menuNotifier.removeListener(_update);
     _menuNotifier.dispose();
+    _audioNotifier.removeListener(_update);
+    _audioNotifier.dispose();
     super.dispose();
   }
 
   void _update() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -74,6 +78,7 @@ class _HomeState extends State<Home> {
       locationNotifier: _locationNotifier,
       dataNotifier: _dataNotifier,
       menuNotifier: _menuNotifier,
+      // audioNotifier: _audioNotifier,
       child: MaterialApp(
         theme: CustomTheme.generateTheme(Color.fromARGB(255, 119, 106, 194)),
         title: 'YMYR',
@@ -103,7 +108,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 )
-              : const LocationSelection(),
+              : LocationSelection(),
         ),
       ),
     );

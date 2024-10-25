@@ -1,5 +1,8 @@
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
@@ -37,6 +40,7 @@ class AppState extends InheritedWidget {
   final LocationNotifier locationNotifier;
   final DataNotifier dataNotifier;
   final MenuNotifier menuNotifier;
+  // final AudioNotifier audioNotifier;
 
   List<ParseObject> get filtered => dataNotifier.current;
   Category get category => dataNotifier.category;
@@ -59,6 +63,7 @@ class AppState extends InheritedWidget {
     required this.locationNotifier,
     required this.dataNotifier,
     required this.menuNotifier,
+    // required this.audioNotifier,
   });
 
   static AppState? of(BuildContext context) {
@@ -263,3 +268,61 @@ class MenuNotifier extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+class AudioNotifier extends ChangeNotifier with WidgetsBindingObserver {
+  final AudioPlayer _player = AudioPlayer();
+  String _radioName = "Radio Paradise UK"; // Default values
+  String _radioStream = "https://stream-uk1.radioparadise.com/aac-320";
+
+  AudioPlayer get player => _player;
+  String get radioName => _radioName;
+
+  setRadio(radioName, radioStream) async {
+    _radioName = radioName;
+    _radioStream = radioStream;
+
+    try {
+      await _player.setAudioSource(AudioSource.uri(Uri.parse(_radioStream)));
+    } on PlayerException catch (e) {
+      print("Error loading audio source: $e");
+    }
+    player.play();
+  }
+
+  Future<void> _initPlayer() async {
+    // Inform the operating system of our app's audio attributes etc.
+    // We pick a reasonable default for an app that plays speech.
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.speech());
+    // Listen to errors during playback.
+    _player.playbackEventStream.listen((event) {},
+        onError: (Object e, StackTrace stackTrace) {
+      print('A stream error occurred: $e');
+    });
+    // Try to load audio from a source and catch any errors.
+    try {
+      await _player.setAudioSource(AudioSource.uri(Uri.parse(_radioStream)));
+    } on PlayerException catch (e) {
+      print("Error loading audio source: $e");
+    }
+  }
+
+  AudioNotifier() {
+    ambiguate(WidgetsBinding.instance)!.addObserver(this);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+    ));
+    _initPlayer();
+  }
+
+  // @override
+  // void dispose() {
+  //   ambiguate(WidgetsBinding.instance)!.removeObserver(this);
+  //   // Release decoders and buffers back to the operating system making them
+  //   // available for other apps to use.
+  //   _player.dispose();
+  //   super.dispose();
+  // }
+}
+
+T? ambiguate<T>(T? value) => value;

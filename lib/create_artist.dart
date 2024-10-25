@@ -805,8 +805,11 @@ class Info extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                "The YMYR artist map is an open infrastructure to make artists visible and discoverable. To add yourself to the map, please follow these 3 simple steps to submit a profile request. We will then contact you via email to complete your profile.",
+                "The YMYR artist map is an open infrastructure to makes artists and local music scenes visible and discoverable. If you are an artists and would like to list your profile on YMYR, please follow these simple steps to submit a profile request.",
               ),
+              const SizedBox(height: 8),
+              const Text(
+                  "We will then contact you via email to complete your profile."),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,14 +1,11 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/cateogry_menu.dart';
-import 'package:ymyr/main.dart';
 import 'package:ymyr/map.dart';
 import 'package:ymyr/nav_menu.dart';
-import 'package:ymyr/picker.dart';
-import 'package:ymyr/player.dart';
 import 'package:ymyr/sidebar.dart';
 
 class MapScreen extends StatefulWidget {
@@ -19,30 +16,24 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-
-  void stopAudioPlayer() async {
-    if (mounted) {
-      await _audioPlayer.stop();
-    }
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     AppState.of(context)!.dataNotifier.addListener(_updateState);
   }
 
   void _updateState() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     AppState.of(context)!.dataNotifier.removeListener(_updateState);
-
-    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -52,12 +43,16 @@ class _MapScreenState extends State<MapScreen> {
       bottomNavigationBar: Container(
           height: 50,
           color: Theme.of(context).canvasColor,
-          child: Row(
+          child: const Row(
             children: [
-              AudioPlayerWidget(
-                player: _audioPlayer,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // ControlButtons(),
+                ],
               ),
-              const Expanded(
+              Expanded(
                 child: TextScroll(
                   "RADIO SHOW <NAME> If this text is to long to be shown in just one line, it moves from right to left.",
                   velocity: Velocity(
@@ -71,8 +66,8 @@ class _MapScreenState extends State<MapScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              stopAudioPlayer();
               Navigator.pop(context);
+              dispose();
             },
             icon: const Icon(Icons.arrow_back)),
         title: Row(
@@ -92,7 +87,6 @@ class _MapScreenState extends State<MapScreen> {
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () async {
-                await _audioPlayer.dispose();
                 Navigator.pop(context);
               },
               child: Text(
@@ -119,3 +113,67 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
+
+// /// Displays the play/pause button and volume/speed sliders.
+// class ControlButtons extends StatefulWidget {
+//   const ControlButtons({super.key});
+
+//   @override
+//   State<ControlButtons> createState() => _ControlButtonsState();
+// }
+
+// class _ControlButtonsState extends State<ControlButtons> {
+//   @override
+//   void didChangeDependencies() {
+//     super.didChangeDependencies();
+//     AppState.of(context)!.audioNotifier.addListener(_updateState);
+//   }
+
+//   void _updateState() {
+//     if (mounted) setState(() {});
+//   }
+
+//   @override
+//   void dispose() {
+//     super.dispose();
+//   }
+
+//   // void didChangeAppLifecycleState(AppLifecycleState state) {
+//   //   if (state == AppLifecycleState.paused) {
+//   //     // Release the player's resources when not in use. We use "stop" so that
+//   //     // if the app resumes later, it will still remember what position to
+//   //     // resume from.
+//   //     AppState.of(context)!.audioNotifier.player.stop();
+//   //   }
+//   // }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       mainAxisSize: MainAxisSize.min,
+//       children: [
+//         StreamBuilder<PlayerState>(
+//           stream: AppState.of(context)!.audioNotifier.player.playerStateStream,
+//           builder: (context, snapshot) {
+//             final playerState = snapshot.data;
+//             final playing = playerState?.playing;
+
+//             if (playing != true) {
+//               return IconButton(
+//                 icon: const Icon(Icons.play_arrow),
+//                 iconSize: 32.0,
+//                 onPressed: AppState.of(context)!.audioNotifier.player.play,
+//               );
+//             } else {
+//               return IconButton(
+//                 icon: const Icon(Icons.pause),
+//                 iconSize: 32.0,
+//                 onPressed: AppState.of(context)!.audioNotifier.player.pause,
+//               );
+//             }
+//           },
+//         ),
+//       ],
+//     );
+//   }
+// }
