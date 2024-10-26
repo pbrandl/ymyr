@@ -23,16 +23,19 @@ class _MapScreenState extends State<MapScreen> {
 
   late LocationNotifier locationNotifier;
   late DataNotifier dataNotifier;
+  late AudioNotifier audioNotifier;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     locationNotifier = AppState.of(context)!.locationNotifier;
     dataNotifier = AppState.of(context)!.dataNotifier;
+    audioNotifier = AppState.of(context)!.audioNotifier;
 
     // Add listeners
     locationNotifier.addListener(_updateState);
     dataNotifier.addListener(_updateState);
+    audioNotifier.addListener(_updateState);
   }
 
   void _updateState() {
@@ -43,6 +46,7 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     locationNotifier.removeListener(_updateState);
     dataNotifier.removeListener(_updateState);
+    audioNotifier.removeListener(_updateState);
     super.dispose();
   }
 
@@ -63,7 +67,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               Expanded(
                 child: TextScroll(
-                  AppState.of(context)!.audioNotifier.radioName,
+                  audioNotifier.radioName,
                   velocity: const Velocity(
                     pixelsPerSecond: Offset(40, 0),
                   ),
