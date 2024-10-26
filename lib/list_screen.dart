@@ -7,7 +7,7 @@ import 'package:ymyr/cateogry_menu.dart';
 import 'package:ymyr/profile_event.dart';
 import 'package:ymyr/main.dart';
 import 'package:ymyr/map_screen.dart';
-import 'package:ymyr/nav_menu.dart';
+import 'package:ymyr/filter_menu.dart';
 import 'package:ymyr/picker.dart';
 import 'package:ymyr/profile_radio.dart';
 

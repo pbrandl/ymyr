@@ -5,7 +5,7 @@ import 'package:text_scroll/text_scroll.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/cateogry_menu.dart';
 import 'package:ymyr/map.dart';
-import 'package:ymyr/nav_menu.dart';
+import 'package:ymyr/filter_menu.dart';
 import 'package:ymyr/sidebar.dart';
 
 class MapScreen extends StatefulWidget {
@@ -75,9 +75,7 @@ class _MapScreenState extends State<MapScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pop(context);
-              });
+              Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back)),
         title: Row(

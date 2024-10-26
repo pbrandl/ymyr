@@ -2,6 +2,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
@@ -255,6 +256,28 @@ class DataNotifier extends ChangeNotifier {
       // Handle error
       print('Failed to fetch events: ${response.error?.message}');
     }
+  }
+
+  filterEventByDate(date) {
+    _filtered = (category == Category.event
+            ? events
+            : category == Category.artist
+                ? artists
+                : station)
+        .where((item) {
+      final itemGenre = item.get<String>('Genre');
+      final itemType = item.get<String>('Type');
+      final itemFinta = item.get<bool>('Finta');
+      final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
+      final itemDate = dateFormatter.format(item.get('Start'));
+
+      return (genre == 'All' || itemGenre == genre) &&
+          (type == 'All' || itemType == type) &&
+          ((finta == true && itemFinta == true) || finta == false) &&
+          (date == 'All' || itemDate == date);
+    }).toList();
+
+    notifyListeners();
   }
 }
 
