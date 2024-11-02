@@ -87,7 +87,7 @@ class EventProfile extends StatelessWidget {
                     children: [
                       const Icon(Icons.play_arrow_outlined),
                       OpenUrlWidget(
-                        label: 'Listen via Stream',
+                        label: 'Visit Website',
                         url: event['Link'],
                       )
                     ],
