@@ -132,7 +132,7 @@ class _CateogryMenuState extends State<CateogryMenu> {
           height: 8,
         ),
         if (AppState.of(context)!.dataNotifier.category == Category.event)
-          Picker(
+          CupertinoButtonPicker(
               defaultText: 'Dates',
               items: ['All'] +
                   AppState.of(context)!.dataNotifier.events.map((event) {

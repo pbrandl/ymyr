@@ -6,6 +6,7 @@ import 'package:ymyr/app_state.dart';
 import 'package:ymyr/cateogry_menu.dart';
 import 'package:ymyr/map.dart';
 import 'package:ymyr/filter_menu.dart';
+import 'package:ymyr/picker.dart';
 import 'package:ymyr/sidebar.dart';
 
 class MapScreen extends StatefulWidget {
@@ -84,27 +85,43 @@ class _MapScreenState extends State<MapScreen> {
             icon: const Icon(Icons.arrow_back)),
         title: Row(
           children: [
-            Text(
-              AppState.of(context)!.dataNotifier.category == Category.event
-                  ? "EVENTS IN"
-                  : AppState.of(context)!.dataNotifier.category ==
-                          Category.artist
-                      ? "ARTISTS IN"
-                      : "RADIOS IN",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            const Text(
+              "Artist World",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               width: 8,
             ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                Navigator.pop(context);
-              },
-              child: Text(
-                cityStringMap[AppState.of(context)!.city]!.toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+            Row(
+              children: [
+                CupertinoButtonPicker(
+                    defaultText: 'All',
+                    items: ['All'] +
+                        AppState.of(context)!
+                            .dataNotifier
+                            .worlds
+                            .map(
+                              (e) => e['WorldName'] as String,
+                            )
+                            .toList(),
+                    onChanged: (worldName) {
+                      if (worldName == 'All') {
+                        AppState.of(context)!.dataNotifier.initialize();
+                      } else {
+                        AppState.of(context)!
+                            .dataNotifier
+                            .getArtistWorld(AppState.of(context)!
+                                .dataNotifier
+                                .worlds
+                                .where((e) {
+                                  return e['WorldName'] == worldName;
+                                })
+                                .first
+                                .objectId!);
+                      }
+                    }),
+                const Icon(Icons.arrow_drop_down)
+              ],
             ),
           ],
         ),

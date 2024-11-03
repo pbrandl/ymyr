@@ -144,6 +144,8 @@ class DataNotifier extends ChangeNotifier {
   List<ParseObject> _events = [];
   List<ParseObject> _stations = [];
   List<ParseObject> _artists = [];
+  List<ParseObject> _artistWorlds = [];
+
   String _genre = 'All';
   String _type = 'All';
   bool _finta = false;
@@ -157,6 +159,7 @@ class DataNotifier extends ChangeNotifier {
   List<ParseObject> get artists => _artists;
   List<ParseObject> get station => _stations;
   List<ParseObject> get current => _filtered;
+  List<ParseObject> get worlds => _artistWorlds;
 
   List<ParseObject> _filtered = [];
 
@@ -204,13 +207,59 @@ class DataNotifier extends ChangeNotifier {
   }
 
   DataNotifier() {
-    _initialize();
+    initialize();
   }
 
-  Future<void> _initialize() async {
-    // await Future.delayed(const Duration(seconds: 3));
-    await Future.wait([fetchArtists(), fetchEvents(), fetchStations()]);
+  Future<void> initialize() async {
+    await Future.wait([
+      fetchArtists(),
+      fetchEvents(),
+      fetchStations(),
+      fetchArtistWorlds(),
+    ]);
     notifyListeners();
+  }
+
+  Future<void> fetchArtistWorlds() async {
+    final QueryBuilder<ParseObject> queryArtists =
+        QueryBuilder<ParseObject>(ParseObject('ArtistWorld'));
+    final ParseResponse response = await queryArtists.query();
+
+    if (response.success && response.results != null) {
+      _artistWorlds = response.results as List<ParseObject>;
+    } else {
+      print('Failed to fetch artists: ${response.error?.message}');
+    }
+  }
+
+  Future<void> getArtistWorld(String worldID) async {
+    final QueryBuilder<ParseObject> queryBuilderArtist =
+        QueryBuilder<ParseObject>(ParseObject('Artists'))
+          ..whereRelatedTo('FavArtists', 'ArtistWorld', worldID);
+
+    final ParseResponse responseArtist = await queryBuilderArtist.query();
+
+    final QueryBuilder<ParseObject> queryBuilderEvents =
+        QueryBuilder<ParseObject>(ParseObject('Artists'))
+          ..whereRelatedTo('FavArtists', 'ArtistWorld', worldID);
+
+    final ParseResponse responseEvents = await queryBuilderArtist.query();
+
+    final QueryBuilder<ParseObject> queryBuilderRadios =
+        QueryBuilder<ParseObject>(ParseObject('Artists'))
+          ..whereRelatedTo('FavArtists', 'ArtistWorld', worldID);
+
+    final ParseResponse responseRadios = await queryBuilderArtist.query();
+
+    debugPrint(responseArtist.results.toString());
+    if (responseArtist.success &&
+        responseEvents.success &&
+        responseRadios.success) {
+      _artists = responseArtist.results as List<ParseObject>;
+      filterSelection(category, genre, type, finta);
+    } else {
+      return Future.error(responseArtist.error!.message);
+    }
   }
 
   Future<void> fetchArtists() async {
@@ -222,6 +271,7 @@ class DataNotifier extends ChangeNotifier {
 
     if (response.success && response.results != null) {
       _artists = response.results as List<ParseObject>;
+
       _filtered = _artists;
     } else {
       print('Failed to fetch artists: ${response.error?.message}');

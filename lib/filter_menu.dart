@@ -59,7 +59,7 @@ class _NavMenuState extends State<NavMenu> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Picker(
+                CupertinoButtonPicker(
                   defaultText: AppState.of(context)!.dataNotifier.genre == 'All'
                       ? 'Genre'
                       : AppState.of(context)!.dataNotifier.genre,
@@ -68,7 +68,7 @@ class _NavMenuState extends State<NavMenu> {
                       AppState.of(context)!.dataNotifier.genre = genre,
                 ),
                 const SizedBox(width: 24),
-                Picker(
+                CupertinoButtonPicker(
                   defaultText: AppState.of(context)!.dataNotifier.type == 'All'
                       ? 'Type'
                       : AppState.of(context)!.dataNotifier.type,
