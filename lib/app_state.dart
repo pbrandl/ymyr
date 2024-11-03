@@ -142,7 +142,7 @@ class LocationNotifier extends ChangeNotifier {
 class DataNotifier extends ChangeNotifier {
   Category _category = Category.artist;
   List<ParseObject> _events = [];
-  List<ParseObject> _stations = [];
+  List<ParseObject> _radios = [];
   List<ParseObject> _artists = [];
   List<ParseObject> _artistWorlds = [];
 
@@ -157,7 +157,7 @@ class DataNotifier extends ChangeNotifier {
   Category get category => _category;
   List<ParseObject> get events => _events;
   List<ParseObject> get artists => _artists;
-  List<ParseObject> get station => _stations;
+  List<ParseObject> get station => _radios;
   List<ParseObject> get current => _filtered;
   List<ParseObject> get worlds => _artistWorlds;
 
@@ -240,22 +240,33 @@ class DataNotifier extends ChangeNotifier {
     final ParseResponse responseArtist = await queryBuilderArtist.query();
 
     final QueryBuilder<ParseObject> queryBuilderEvents =
-        QueryBuilder<ParseObject>(ParseObject('Artists'))
-          ..whereRelatedTo('FavArtists', 'ArtistWorld', worldID);
+        QueryBuilder<ParseObject>(ParseObject('Events'))
+          ..whereRelatedTo('FavEvents', 'ArtistWorld', worldID);
 
-    final ParseResponse responseEvents = await queryBuilderArtist.query();
+    final ParseResponse responseEvents = await queryBuilderEvents.query();
 
     final QueryBuilder<ParseObject> queryBuilderRadios =
-        QueryBuilder<ParseObject>(ParseObject('Artists'))
-          ..whereRelatedTo('FavArtists', 'ArtistWorld', worldID);
+        QueryBuilder<ParseObject>(ParseObject('Radios'))
+          ..whereRelatedTo('FavRadios', 'ArtistWorld', worldID);
 
-    final ParseResponse responseRadios = await queryBuilderArtist.query();
+    final ParseResponse responseRadios = await queryBuilderRadios.query();
 
     debugPrint(responseArtist.results.toString());
     if (responseArtist.success &&
         responseEvents.success &&
         responseRadios.success) {
-      _artists = responseArtist.results as List<ParseObject>;
+      _artists = responseArtist.results != null
+          ? responseArtist.results as List<ParseObject>
+          : [];
+
+      _events = responseEvents.results != null
+          ? responseEvents.results as List<ParseObject>
+          : [];
+
+      _radios = responseRadios.results != null
+          ? responseRadios.results as List<ParseObject>
+          : [];
+
       filterSelection(category, genre, type, finta);
     } else {
       return Future.error(responseArtist.error!.message);
@@ -286,7 +297,7 @@ class DataNotifier extends ChangeNotifier {
     final ParseResponse response = await queryArtists.query();
 
     if (response.success && response.results != null) {
-      _stations = response.results as List<ParseObject>;
+      _radios = response.results as List<ParseObject>;
     } else {
       print('Failed to fetch stations: ${response.error?.message}');
     }
