@@ -171,7 +171,7 @@ class DataNotifier extends ChangeNotifier {
   Category get category => _category;
   List<ParseObject> get events => _events;
   List<ParseObject> get artists => _artists;
-  List<ParseObject> get station => _stations;
+  List<ParseObject> get radios => _stations;
   List<ParseObject> get current => _filtered;
 
   List<ParseObject> _filtered = [];
@@ -206,7 +206,7 @@ class DataNotifier extends ChangeNotifier {
             ? events
             : category == Category.artist
                 ? artists
-                : station)
+                : radios)
         .where((item) {
       final itemGenre = item.get<String>('Genre');
       final itemType = item.get<String>('Type');
@@ -279,7 +279,7 @@ class DataNotifier extends ChangeNotifier {
             ? events
             : category == Category.artist
                 ? artists
-                : station)
+                : radios)
         .where((item) {
       final itemGenre = item.get<String>('Genre');
       final itemType = item.get<String>('Type');

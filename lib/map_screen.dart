@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -147,6 +149,7 @@ class _ControlButtonsState extends State<ControlButtons> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        const SizedBox(width: 4),
         StreamBuilder<PlayerState>(
           stream: AppState.of(context)!.audioNotifier.player.playerStateStream,
           builder: (context, snapshot) {
@@ -154,20 +157,50 @@ class _ControlButtonsState extends State<ControlButtons> {
             final playing = playerState?.playing;
 
             if (playing != true) {
-              return IconButton(
-                icon: const Icon(Icons.play_arrow),
-                iconSize: 32.0,
-                onPressed: AppState.of(context)!.audioNotifier.player.play,
+              return SizedBox(
+                width: 42,
+                height: 42,
+                child: IconButton(
+                  icon: const Icon(Icons.play_arrow),
+                  iconSize: 28.0,
+                  onPressed: AppState.of(context)!.audioNotifier.player.play,
+                ),
               );
             } else {
-              return IconButton(
-                icon: const Icon(Icons.pause),
-                iconSize: 32.0,
-                onPressed: AppState.of(context)!.audioNotifier.player.pause,
+              return SizedBox(
+                width: 42,
+                height: 42,
+                child: IconButton(
+                  icon: const Icon(Icons.pause),
+                  iconSize: 28.0,
+                  onPressed: AppState.of(context)!.audioNotifier.player.pause,
+                ),
               );
             }
           },
         ),
+        SizedBox(
+          width: 42,
+          height: 42,
+          child: IconButton(
+            icon: const Icon(Icons.skip_next),
+            iconSize: 28.0,
+            onPressed: () {
+              AppState.of(context)!.audioNotifier.player.pause;
+              var radios = AppState.of(context)!.dataNotifier.radios;
+              final random = Random();
+              int randomIndex = random.nextInt(radios.length);
+              var radio = radios[randomIndex];
+              AppState.of(context)!.audioNotifier.setRadio(
+                    radio['RadioName'],
+                    radio['Stream'],
+                    radio['Location'],
+                  );
+              AppState.of(context)!.audioNotifier.player.play;
+            },
+          ),
+        ),
+        const SizedBox(width: 8)
       ],
     );
   }
