@@ -56,10 +56,10 @@ class PickerState extends State<Picker> {
             children: [
               Expanded(
                 child: CupertinoPicker(
-                  magnification: 1,
+                  magnification: 0.98,
                   squeeze: 1.3,
-                  useMagnifier: true,
-                  itemExtent: 30,
+                  useMagnifier: false,
+                  itemExtent: 28,
                   scrollController: FixedExtentScrollController(
                     initialItem: _selected,
                   ),

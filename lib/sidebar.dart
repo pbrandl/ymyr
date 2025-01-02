@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:ymyr/create_artist.dart';
 import 'package:ymyr/create_event.dart';
 import 'package:ymyr/create_station.dart';
+import 'package:ymyr/profile_artist.dart';
 import 'package:ymyr/waitlist.dart';
 
 class SideBarNotch extends StatefulWidget {
@@ -69,6 +70,15 @@ class _SideBarNotchState extends State<SideBarNotch>
     }
   }
 
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url!);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -111,16 +121,15 @@ class _SideBarNotchState extends State<SideBarNotch>
                     children: [
                       FilledButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CreateArtist()),
-                          );
+                          _launchUrl(
+                              'https://coda.io/@mint-coop/ymyr/submit-new-artists-50');
                         },
-                        child: const Text("Create Artists"),
+                        child: const Text(
+                          'Submit New Artist',
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      FilledButton(
+                      /*FilledButton(
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -129,21 +138,18 @@ class _SideBarNotchState extends State<SideBarNotch>
                           );
                         },
                         child: const Text("Create Events"),
-                      ),
-                      const SizedBox(height: 16),
+                      ),*/
                       FilledButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CreateStation()),
-                          );
+                          _launchUrl('https://coda.io/@mint-coop/ymyr');
                         },
-                        child: const Text("Create Station"),
+                        child: const Text(
+                          'Submit New Radio',
+                        ),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
-                        width: 135,
+                        width: 163,
                         child: FilledButton(
                           onPressed: () => {
                             showDialog<void>(
@@ -219,7 +225,7 @@ class _SideBarNotchState extends State<SideBarNotch>
                               },
                             )
                           },
-                          child: const Text("About"),
+                          child: const Text('About YMYR'),
                         ),
                       ),
                     ],

@@ -99,7 +99,7 @@ class _HomeState extends State<Home> {
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
                       Text(
-                        "Version 0.1",
+                        "Version 1.0",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,

@@ -16,8 +16,16 @@ enum Genre {
 }
 
 enum Type {
-  band,
-  dj,
+  emergingArtist,
+  breakthroughArtist,
+  alternativeUnderground,
+  localTalent,
+  sceneShaper,
+  risingIcon,
+  mainstreamStar,
+  trailblazer,
+  iconicPerformer,
+  legend
 }
 
 final Map<Genre, String> genreStringMap = {
@@ -29,8 +37,16 @@ final Map<Genre, String> genreStringMap = {
 };
 
 final Map<Type, String> typeStringMap = {
-  Type.band: 'Band',
-  Type.dj: 'DJ',
+  Type.emergingArtist: 'Emerging Artist',
+  Type.breakthroughArtist: 'Breakthrough Artist',
+  Type.alternativeUnderground: 'Alternative Underground',
+  Type.localTalent: 'Local Talent',
+  Type.sceneShaper: 'Scene Shaper',
+  Type.risingIcon: 'Rising Icon',
+  Type.mainstreamStar: 'Mainstream Star',
+  Type.trailblazer: 'Trailblazer',
+  Type.iconicPerformer: 'Iconic Performer',
+  Type.legend: 'Legend',
 };
 
 enum Category { event, artist, station }
