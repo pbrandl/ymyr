@@ -45,6 +45,35 @@ class _CateogryMenuState extends State<CateogryMenu> {
               labelPadding: EdgeInsets.zero,
               padding: EdgeInsets.zero,
               onPressed: () {
+                AppState.of(context)!.dataNotifier.category = Category.station;
+              },
+              label: Container(
+                width: 76,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppState.of(context)!.dataNotifier.category !=
+                          Category.station
+                      ? Colors.transparent
+                      : const Color.fromRGBO(193, 255, 114, 1),
+                ),
+                child: Center(
+                  child: Text(
+                    'Radios',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: !toggle ? Colors.black : Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            ActionChip(
+              clipBehavior: Clip.antiAlias,
+              labelPadding: EdgeInsets.zero,
+              padding: EdgeInsets.zero,
+              onPressed: () {
                 AppState.of(context)!.dataNotifier.category = Category.artist;
               },
               label: Container(
@@ -58,7 +87,7 @@ class _CateogryMenuState extends State<CateogryMenu> {
                 ),
                 child: Center(
                   child: Text(
-                    'Artist',
+                    'Artists',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 14,
@@ -68,7 +97,7 @@ class _CateogryMenuState extends State<CateogryMenu> {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            /* const SizedBox(width: 16),
             ActionChip(
               clipBehavior: Clip.antiAlias,
               labelPadding: EdgeInsets.zero,
@@ -96,36 +125,7 @@ class _CateogryMenuState extends State<CateogryMenu> {
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            ActionChip(
-              clipBehavior: Clip.antiAlias,
-              labelPadding: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                AppState.of(context)!.dataNotifier.category = Category.station;
-              },
-              label: Container(
-                width: 76,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppState.of(context)!.dataNotifier.category !=
-                          Category.station
-                      ? Colors.transparent
-                      : const Color.fromRGBO(193, 255, 114, 1),
-                ),
-                child: Center(
-                  child: Text(
-                    'Radios',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: !toggle ? Colors.black : Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            ), */
           ],
         ),
         const SizedBox(

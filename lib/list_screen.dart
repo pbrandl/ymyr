@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:text_scroll/text_scroll.dart';
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/profile_artist.dart';
 import 'package:ymyr/cateogry_menu.dart';
@@ -24,11 +25,15 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
+  late AudioNotifier audioNotifier;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     AppState.of(context)!.dataNotifier.addListener(_updateState);
+    audioNotifier = AppState.of(context)!.audioNotifier;
+    audioNotifier.addListener(_updateState);
   }
 
   void _updateState() {
@@ -47,32 +52,42 @@ class _ListScreenState extends State<ListScreen> {
     City city = state.city;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text(
-              AppState.of(context)!.dataNotifier.category == Category.event
-                  ? "EVENTS IN"
-                  : AppState.of(context)!.dataNotifier.category ==
-                          Category.artist
-                      ? "ARTISTS IN"
-                      : "RADIOS IN",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(
-              width: 8,
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                Navigator.pop(context);
-              },
-              child: Text(
-                cityStringMap[city]!.toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+      bottomNavigationBar: Container(
+          height: 50,
+          color: Theme.of(context).canvasColor,
+          child: Row(
+            children: [
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ControlButtons(),
+                ],
               ),
-            ),
-          ],
+              Expanded(
+                child: TextScroll(
+                  audioNotifier.radioLocation == ''
+                      ? audioNotifier.radioName
+                      : '${audioNotifier.radioName} live from ${audioNotifier.radioLocation}',
+                  velocity: const Velocity(
+                    pixelsPerSecond: Offset(40, 0),
+                  ),
+                  intervalSpaces: 50,
+                ),
+              )
+            ],
+          )),
+      appBar: AppBar(
+        /* leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back)),*/
+        title: const Center(
+          child: Text(
+            "YMYR",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
       backgroundColor: Colors.white,
@@ -86,28 +101,23 @@ class _ListScreenState extends State<ListScreen> {
                 itemBuilder: (context, index) {
                   final item = widget.data[index];
                   return Padding(
-                      padding: EdgeInsets.only(
-                        top: index == 0 ? 64.0 : 16.0,
-                        bottom: index == widget.data.length - 1 ? 72.0 : 16.0,
-                        left: 16.0,
-                        right: 16.0,
-                      ),
-                      child: AppState.of(context)!.dataNotifier.category !=
-                              Category.event
-                          ? AppState.of(context)!.dataNotifier.category ==
-                                  Category.station
-                              ? RadioProfile(
-                                  radio: item,
-                                  showCloseButton: false,
-                                )
-                              : ArtistProfile(
-                                  artist: item,
-                                  showCloseButton: false,
-                                )
-                          : EventProfile(
-                              event: item,
-                              showCloseButton: false,
-                            ));
+                    padding: EdgeInsets.only(
+                      top: index == 0 ? 64.0 : 16.0,
+                      bottom: index == widget.data.length - 1 ? 72.0 : 16.0,
+                      left: 16.0,
+                      right: 16.0,
+                    ),
+                    child: AppState.of(context)!.dataNotifier.category ==
+                            Category.station
+                        ? RadioProfile(
+                            radio: item,
+                            showCloseButton: false,
+                          )
+                        : ArtistProfile(
+                            artist: item,
+                            showCloseButton: false,
+                          ),
+                  );
                 },
               ),
             ),

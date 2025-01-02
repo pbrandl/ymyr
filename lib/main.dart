@@ -6,6 +6,7 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 import 'package:ymyr/app_state.dart';
 import 'package:ymyr/location_selection.dart';
+import 'package:ymyr/map_screen.dart';
 import 'package:ymyr/streamplayer.dart';
 
 import 'package:ymyr/theme.dart';
@@ -107,7 +108,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 )
-              : LocationSelection(),
+              : const MapScreen(),
         ),
       ),
     );

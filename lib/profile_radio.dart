@@ -78,9 +78,8 @@ class RadioProfile extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () => AppState.of(context)!
-                        .audioNotifier
-                        .setRadio(radio['RadioName'], radio['Stream']),
+                    onTap: () => AppState.of(context)!.audioNotifier.setRadio(
+                        radio['RadioName'], radio['Stream'], radio['Location']),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

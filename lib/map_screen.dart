@@ -67,7 +67,9 @@ class _MapScreenState extends State<MapScreen> {
               ),
               Expanded(
                 child: TextScroll(
-                  audioNotifier.radioName,
+                  audioNotifier.radioLocation == ''
+                      ? audioNotifier.radioName
+                      : '${audioNotifier.radioName} live from ${audioNotifier.radioLocation}',
                   velocity: const Velocity(
                     pixelsPerSecond: Offset(40, 0),
                   ),
@@ -77,36 +79,16 @@ class _MapScreenState extends State<MapScreen> {
             ],
           )),
       appBar: AppBar(
-        leading: IconButton(
+        /* leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back)),
-        title: Row(
-          children: [
-            Text(
-              AppState.of(context)!.dataNotifier.category == Category.event
-                  ? "EVENTS IN"
-                  : AppState.of(context)!.dataNotifier.category ==
-                          Category.artist
-                      ? "ARTISTS IN"
-                      : "RADIOS IN",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(
-              width: 8,
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                Navigator.pop(context);
-              },
-              child: Text(
-                cityStringMap[AppState.of(context)!.city]!.toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+            icon: const Icon(Icons.arrow_back)),*/
+        title: const Center(
+          child: Text(
+            "YMYR",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
       body: const Stack(clipBehavior: Clip.none, children: [

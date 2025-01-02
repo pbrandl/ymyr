@@ -140,7 +140,7 @@ class LocationNotifier extends ChangeNotifier {
 }
 
 class DataNotifier extends ChangeNotifier {
-  Category _category = Category.artist;
+  Category _category = Category.station;
   List<ParseObject> _events = [];
   List<ParseObject> _stations = [];
   List<ParseObject> _artists = [];
@@ -222,7 +222,6 @@ class DataNotifier extends ChangeNotifier {
 
     if (response.success && response.results != null) {
       _artists = response.results as List<ParseObject>;
-      _filtered = _artists;
     } else {
       print('Failed to fetch artists: ${response.error?.message}');
     }
@@ -237,6 +236,7 @@ class DataNotifier extends ChangeNotifier {
 
     if (response.success && response.results != null) {
       _stations = response.results as List<ParseObject>;
+      _filtered = _stations;
     } else {
       print('Failed to fetch stations: ${response.error?.message}');
     }
@@ -295,14 +295,17 @@ class MenuNotifier extends ChangeNotifier {
 class AudioNotifier extends ChangeNotifier with WidgetsBindingObserver {
   final AudioPlayer _player = AudioPlayer();
   String _radioName = "Radio Paradise UK"; // Default values
+  String _radioLocation = ""; // Default values
   String _radioStream = "https://stream-uk1.radioparadise.com/aac-320";
 
   AudioPlayer get player => _player;
   String get radioName => _radioName;
+  String get radioLocation => _radioLocation;
 
-  setRadio(radioName, radioStream) async {
+  setRadio(radioName, radioStream, radioLocation) async {
     _radioName = radioName;
     _radioStream = radioStream;
+    _radioLocation = radioLocation;
 
     try {
       await _player.setAudioSource(AudioSource.uri(Uri.parse(_radioStream)));

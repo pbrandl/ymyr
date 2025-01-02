@@ -80,7 +80,7 @@ class _OSMFlutterMapState extends State<OSMFlutterMap> {
           mapController: mapController,
           options: MapOptions(
             center: AppState.of(context)!.center,
-            zoom: 14.0,
+            zoom: 4.0,
             minZoom: 1.0,
             maxZoom: 18.0,
             interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,

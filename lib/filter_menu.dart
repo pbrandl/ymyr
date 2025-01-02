@@ -67,17 +67,26 @@ class _NavMenuState extends State<NavMenu> {
                   onChanged: (genre) =>
                       AppState.of(context)!.dataNotifier.genre = genre,
                 ),
-                const SizedBox(width: 24),
-                Picker(
-                  defaultText: AppState.of(context)!.dataNotifier.type == 'All'
-                      ? 'Type'
-                      : AppState.of(context)!.dataNotifier.type,
-                  items: ['All'] + typeStringMap.values.toList(),
-                  onChanged: (type) =>
-                      AppState.of(context)!.dataNotifier.type = type,
-                ),
-                const SizedBox(width: 24),
-                const FintaActionChip(),
+                if (AppState.of(context)!.dataNotifier.category ==
+                    Category.artist)
+                  const SizedBox(width: 24),
+                if (AppState.of(context)!.dataNotifier.category ==
+                    Category.artist)
+                  Picker(
+                    defaultText:
+                        AppState.of(context)!.dataNotifier.type == 'All'
+                            ? 'Type'
+                            : AppState.of(context)!.dataNotifier.type,
+                    items: ['All'] + typeStringMap.values.toList(),
+                    onChanged: (type) =>
+                        AppState.of(context)!.dataNotifier.type = type,
+                  ),
+                if (AppState.of(context)!.dataNotifier.category ==
+                    Category.artist)
+                  const SizedBox(width: 24),
+                if (AppState.of(context)!.dataNotifier.category ==
+                    Category.artist)
+                  const FintaActionChip(),
               ],
             ),
           const SizedBox(height: 8),
