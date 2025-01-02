@@ -271,7 +271,6 @@ class _CreateArtistState extends State<CreateArtist> {
                 right: 20,
                 child: FilledButton(
                   onPressed: isUploading ? null : () => _uploadHandler(),
-                  iconAlignment: IconAlignment.end,
                   child: isUploading
                       ? CircularProgressIndicator(
                           color: Theme.of(context).primaryColor)
@@ -386,7 +385,6 @@ class _TextInputState extends State<TextInput> {
                         : null,
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text("Next"),
-                    iconAlignment: IconAlignment.end,
                   ),
                 ],
               )
@@ -772,7 +770,6 @@ class _DescriptionInputState extends State<DescriptionInput> {
                     : null,
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text("Next"),
-                iconAlignment: IconAlignment.end,
               ),
             ],
           )
@@ -826,7 +823,6 @@ class Info extends StatelessWidget {
                     onPressed: goToNextPage,
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text("Next"),
-                    iconAlignment: IconAlignment.end,
                   ),
                 ],
               )
